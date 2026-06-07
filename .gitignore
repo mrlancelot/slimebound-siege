@@ -1,0 +1,16 @@
+.DS_Store
+
+# Lua / editor
+.luarc.json.*.bak
+
+# Love2D packages
+build/
+*.love
+*.app
+*.exe
+
+# Logs and temp files
+*.log
+tmp/
+temp/
+
