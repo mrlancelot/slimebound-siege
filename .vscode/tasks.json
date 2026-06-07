@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "love: run",
+      "detail": "Launch the game (make run on macOS/Linux, build.ps1 on Windows)",
+      "type": "shell",
+      "command": "make",
+      "args": ["run"],
+      "windows": {
+        "command": "powershell",
+        "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "build.ps1", "run"]
+      },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "love: check",
+      "detail": "Parse/lint all Lua files",
+      "type": "shell",
+      "command": "make",
+      "args": ["check"],
+      "windows": {
+        "command": "powershell",
+        "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "build.ps1", "check"]
+      },
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "love: package",
+      "detail": "Build build/slimebound-siege.love",
+      "type": "shell",
+      "command": "make",
+      "args": ["package"],
+      "windows": {
+        "command": "powershell",
+        "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "build.ps1", "package"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "love: clean",
+      "detail": "Remove build output",
+      "type": "shell",
+      "command": "make",
+      "args": ["clean"],
+      "windows": {
+        "command": "powershell",
+        "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "build.ps1", "clean"]
+      },
+      "problemMatcher": []
+    }
+  ]
+}

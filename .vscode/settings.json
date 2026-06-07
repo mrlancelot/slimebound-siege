@@ -1,0 +1,15 @@
+{
+  "files.eol": "\n",
+  "files.exclude": {
+    "build": true
+  },
+  "search.exclude": {
+    "build": true
+  },
+  "[lua]": {
+    "editor.defaultFormatter": "johnnymorganz.stylua",
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4
+  }
+}
