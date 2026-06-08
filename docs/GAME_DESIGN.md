@@ -4,328 +4,273 @@
 
 **Slimebound Siege**
 
-Other possible titles:
+A roguelike **poker-scoring siege deckbuilder**. You play a reincarnated slime
+commanding a monster horde, raiding fortified human towns by playing poker hands as
+siege assaults.
 
-- Reborn as the Horde Core
-- Mythic Siege
-- I Woke Up as the Horde
-- Slime Overlord: Kingdom Siege
-- Monster Raid
-
-The working title should stay flexible until the first playable vertical slice has a clearer tone.
+The working title should stay flexible until the first playable vertical slice has a
+clearer tone.
 
 ## High Concept
 
-An ordinary person from Earth is hit by Truck-kun and wakes up inside a fantasy strategy game as a weak slime. This is not the heroic side of the game. The player has been reborn on the monster side of a reverse tower defense world, where human towns are already built and defended.
+An ordinary person from Earth is hit by Truck-kun and wakes up inside a fantasy strategy
+game as a weak slime. This is not the heroic side of the game. The player has been reborn
+on the monster side of a world where human towns are already built and defended.
 
-To survive, the slime must gather mythical creatures, raid fortified settlements, absorb power, merge monsters into stronger forms, and push deeper into kingdoms that were designed to destroy creatures like them.
+To survive, the slime gathers mythical creatures into a **deck/horde**, raids fortified
+settlements, absorbs power, **merges cards into stronger monsters**, and pushes deeper
+into kingdoms that were designed to destroy creatures like them.
 
-The game is an isometric 2.5D base assault game built in Lua with Love2D.
+Mechanically the game is a roguelike deckbuilder built in Lua with Love2D, inspired by
+the structure of poker-scoring roguelikes but built around three original verbs:
+**multi-structure sieges**, **merge-to-evolve your deck**, and a **town that fights
+back**.
 
 ## Core Fantasy
 
 Start as a weak slime. Become the mind behind a mythical horde.
 
-The player should feel like they are slowly learning the rules of a game world from the inside. At first, they are fragile and confused. Over time, they become a strategist, a commander, and eventually a force that kingdoms plan around.
+At first the player is fragile and confused, learning the world's "game rules" from the
+inside through a broken interface. Over time they become a strategist who reads each
+town's defenses, brings the right monsters and elements, and grows a personalized horde
+that kingdoms plan around.
 
-The fantasy is not just "be evil." The stronger emotional pitch is:
+The fantasy is not just "be evil." The stronger pitch is:
 
 - A person trapped in an unfamiliar world.
-- A slime body with strange absorb/evolve powers.
+- A slime body with strange absorb/evolve/merge powers.
 - Monsters who are feared, hunted, and pushed to the edges of civilization.
 - Human kingdoms that see all monsters as resources, threats, or test subjects.
 - A growing horde that becomes a found family, army, and political force.
 
+## Locked Design Decisions
+
+These were resolved during design and supersede the earlier "Open Questions."
+
+| Topic | Decision |
+|---|---|
+| Genre | Roguelike poker-scoring siege deckbuilder (original mechanics) |
+| Card base | 52-card *vocabulary* (suit = family, rank = power); J/Q/K = champions, **Ace = Slime Core** |
+| Deck model | Lean, growing: start ~12-16 cards, optionally grow via drafts/merges (lean = more consistent draws) |
+| Combat | **One-Commit Siege**: scout -> draw 7 -> exchange <=3 over 2 sculpt turns -> commit 7 as lane combos |
+| Targets | **Independent structures**: any lane hits any structure; Core = conquer, others = bonus loot |
+| Elements | **Separate axis** - every card has a family (suit) AND an independent element |
+| Siege math | `attack = (sum of ranks) x combo-mult x type-mult` vs a structure's **DEF** |
+| Signature pillars | **Merge-to-evolve deck**, **multi-structure sieges**, **town fights back** |
+| Hero | Selectable **Slime evolution "decks"** at run start; levels via story |
+| Permadeath | At **expedition scope** - fallen cards/companions are lost for that expedition; the Slime always survives a loss |
+| Conquest | Permanent - a persistent **overworld**; each kingdom has several towns, conquered ones stick |
+| Map | **Two layers**: persistent overworld + a fresh **expedition** = the assault on **one town** (~8-12 nodes, boss = the keep) |
+| Expedition deck | **Fresh each expedition** - built during the run, reset after; only territory + meta-unlocks persist |
+| Tone | Evenly mixed (dark comedy -> serious stakes) |
+| Humans | Some can ally (events, recruitable neutrals, an allied faction) |
+| Battle pacing | Turn-based card play (you choose every assault) |
+| Slime presence | Protected commander-hero; never lost to a single bad assault |
+
 ## Genre Pillars
 
-### Isometric Base Assault
+### Multi-Structure Sieges
 
-Each level is a pre-built human settlement with defenses already placed. The player studies the map, chooses monsters, and deploys them from valid outside tiles.
+A town is not a single score target. It is a set of independent structures - Outer Wall,
+Gatehouse, Arrow Tower, Town Core - each with its own **DEF**, **material/element**, and
+sometimes a rule. You allocate your hand into lanes to break what you can; the Core is the
+prize, the rest is bonus loot. This is where target-priority tactics live.
 
-### Monster Merging
+### Merge-to-Evolve
 
-Monsters are not only bought and upgraded. They can be merged into stronger or hybrid forms, creating a sense of experimentation.
+Matched cards are not only scored - they can be **fused into permanent, stronger monster
+cards** that join your deck. Your small starting deck mutates into a personalized horde
+over a run. Merging can permanently consume the fused cards.
 
 ### Slime Evolution
 
-The main character is a slime commander who can absorb traits, memories, essence, or materials after battle. This creates long-term progression separate from individual monster units.
+The slime commander is chosen as one of several **evolution cores** at run start, each
+changing the rules of play. The slime levels through story beats between regions. This is
+long-term identity progression separate from individual cards.
 
 ### Kingdom Conquest
 
-The world map starts with weak edge villages and grows into fortified inner towns, regional capitals, sacred cities, and anti-monster research zones.
+The run climbs through kingdoms (the "antes"), from weak edge villages to fortified inner
+towns, regional capitals, sacred cities, and anti-monster research zones. Clearing a
+capital permanently unlocks meta-progression for future runs.
 
 ## Story Premise
 
-The protagonist is an exhausted person from Earth who dies in a sudden traffic accident. In the last moment, they remember a strategy game they had been playing: a fantasy defense game where human towns survived waves of monsters.
+The protagonist is an exhausted person from Earth who dies in a sudden traffic accident.
+In the last moment they remember a strategy game they had been playing: a fantasy defense
+game where human towns survived waves of monsters.
 
-They wake up in darkness with no arms, no legs, and no human voice. Their body is a small slime in the wild borderlands. A translucent game-like interface appears, but the menu is broken, incomplete, and written as if the player is on the enemy side.
+They wake in darkness with no arms, no legs, and no human voice - a small slime in the
+wild borderlands. A translucent, game-like interface appears, but it is broken,
+incomplete, and written as if the player is on the *enemy* side.
 
-The world calls them a "horde core," a rare monster capable of guiding lesser creatures through instinct, mana, and absorbed memories.
+The world calls them a "horde core," a rare monster capable of guiding lesser creatures
+through instinct, mana, and absorbed memories.
 
-The first human village attacks nearby monsters for bounty money. The slime survives by gathering a few weak creatures and raiding the village before it can organize a purge.
+The first human village hunts nearby monsters for bounty. The slime survives by gathering
+a few weak creatures and sieging the village before it can organize a purge. That first
+raid reveals the truth: this world runs on siege rules, town defenses, monster counters,
+unit roles, rewards, and progression. If the slime does not grow, the kingdoms will wipe
+out every monster nest on the frontier.
 
-That first raid reveals the truth: the slime is inside a world built around siege rules, town defenses, monster counters, unit roles, rewards, and progression. If the slime does not grow, the kingdoms will wipe out every monster nest on the frontier.
+The full narrative is in [STORY.md](STORY.md).
 
 ## Tone
 
-The tone should mix strategy, dark comedy, and progression fantasy.
+The tone mixes strategy, dark comedy, and progression fantasy.
 
-Avoid making the player purely cruel. The human kingdoms can be dangerous and oppressive, but individual humans can still be scared, normal, foolish, brave, greedy, or kind. The monster side should have personality and warmth.
+Avoid making the player purely cruel. Human kingdoms can be dangerous and oppressive, but
+individual humans can still be scared, normal, foolish, brave, greedy, or kind - and some
+can ally with the horde. The monster side should have personality and warmth.
 
-The story should leave room for:
+The story leaves room for funny isekai moments, tactical planning, monster companion
+personalities, strange fantasy politics, and serious stakes when kingdoms escalate.
 
-- Funny isekai moments.
-- Tactical planning.
-- Monster companion personalities.
-- Strange fantasy politics.
-- Serious stakes when kingdoms escalate.
+## Cards
 
-## Main Character
+Cards are monsters described by a **suit** (family), a **rank** (power), and an
+**element**. The familiar 52 combinations (4 suits x 13 ranks) are the card *vocabulary* -
+they are **not** your deck size. The full monster list (types + abilities) is in
+[MONSTERS.md](MONSTERS.md).
 
-### The Slime
+### Deck (lean, growing)
 
-The slime is the player's avatar and strategic identity. It does not need to be a direct combat powerhouse at the start.
+You do not start with all 52. Each expedition begins with a small **starting deck**
+(~12-16 cards, scaled by your core, territory, and meta-unlocks) and can **grow during the
+run** through drafts (Recruit camps) and merges. Because each town draws only a 7-card hand
+(plus up to 3 exchanges), a **lean deck draws more reliably** - growing adds power but
+costs consistency. The deck resets at the end of the expedition.
 
-Early slime traits:
+Each town is one **sculpt-and-commit**: draw a 7-card hand, exchange up to 3 cards over 2
+sculpt turns, then commit your 7 as lane combos against the structures (see
+[Siege Economy](#siege-economy-one-commit)).
 
-- Weak body.
-- Can absorb residue from defeated enemies and destroyed structures.
-- Can sense monster instincts.
-- Can spend essence to unlock commands.
-- Can merge or mutate allied monsters.
-- Can read fragments of the world's game-like rules.
+### Suit = Monster Family
 
-Long-term slime evolution paths:
+- **Clubs - Goblins**: cheap, numerous, low ranks; reward swarms/flushes.
+- **Spades - Brutes** (Orc/Ogre/Troll): high single-card value, tanky.
+- **Hearts - Slimes**: support - heal, absorb, copy; synergize with the Ace.
+- **Diamonds - Casters** (Imp/Shaman/Wyvern): effects, ranged, can reach back-row
+  structures.
 
-- **Commander Core**: better deployment, more squad control, more army capacity.
-- **Absorber Core**: gains traits from enemies, structures, traps, and bosses.
-- **Alchemist Core**: improves merging, hybrid forms, and resource conversion.
-- **Warden Core**: builds monster camps, protects allied creatures, unlocks defense between raids.
+### Rank = Power Tier
 
-## World Structure
+- **2-10**: grunts, raw rank value.
+- **Jack / Queen / King**: named champions that carry abilities.
+- **Ace**: the **Slime Core** - your hero wildcard; can substitute into combos.
 
-The world is divided into kingdoms and regions. Each region has a difficulty gradient from border settlements to capital strongholds.
+### Element (Separate Axis)
 
-### Frontier Farmlands
+Every card also has an **element**, independent of its family. A Diamond Caster might be
+Fire *or* Frost. Poker mechanics use rank + suit (a flush is five of one family); the
+element feeds the **type multiplier** against a structure's material and, for two of the
+elements, a **secondary effect**. The starting deck spreads elements across suits; merges
+and alchemy can re-type cards. (Exact distribution is a tuning detail.)
 
-Purpose: Tutorial region.
+Five elements, split into **3 damage + 2 utility**:
 
-Human defenses:
+- **Fire** (damage): strong vs Wood and Ice.
+- **Acid** (damage): strong vs Iron and Stone; fizzles on Holy.
+- **Physical** (damage): smashes Holy wards; bounces off hard Stone/Iron.
+- **Frost** (utility): **freezes its target - reduces that structure's DEF** before the
+  lane resolves (brittle); weak vs Ice.
+- **Poison** (utility): **ignores resistance** - its damage is not reduced by the x0.5
+  resist case, good for cracking resistant materials.
 
-- Fences.
-- Watch posts.
-- Militia.
-- Wooden arrow towers.
-- Basic gates.
+## Siege Combat
 
-Monster unlocks:
-
-- Goblins.
-- Slimes.
-- Orcs.
-
-### Iron Marches
-
-Purpose: First real resistance.
-
-Human defenses:
-
-- Stone walls.
-- Crossbow towers.
-- Patrol guards.
-- Spike traps.
-- Armored gatehouses.
-
-Monster unlocks:
-
-- Ogres.
-- Shield goblins.
-- Burrowers.
-
-### Sun Dominion
-
-Purpose: Anti-monster magic.
-
-Human defenses:
-
-- Priests.
-- Holy shrines.
-- Fire towers.
-- Burning oil.
-- Wards that weaken regeneration.
-
-Monster unlocks:
-
-- Shamans.
-- Trolls.
-- Hex slimes.
-
-### Frost Holds
-
-Purpose: Movement disruption and terrain.
-
-Human defenses:
-
-- Slow fields.
-- Ice walls.
-- Long-range ballista towers.
-- Frozen choke points.
-
-Monster unlocks:
-
-- Harpies.
-- Frost ogres.
-- Tunnel beasts.
-
-### Crown Engine Capital
-
-Purpose: Late-game escalation.
-
-Human defenses:
-
-- Cannons.
-- Elite knights.
-- Mage towers.
-- Anti-slime machines.
-- Research labs.
-- Boss commanders.
-
-Monster unlocks:
-
-- Wyverns.
-- Ancient trolls.
-- Named champion monsters.
-
-## Core Gameplay Loop
-
-1. Pick a town on the region map.
-2. Scout the town layout.
-3. Review rewards, defenses, and deployment zones.
-4. Choose a monster squad.
-5. Deploy monsters from valid outside tiles.
-6. Monsters advance using simple behaviors.
-7. Town defenses fire, spawn guards, trigger traps, and block paths.
-8. Destroy buildings, steal resources, or reach the town core.
-9. Earn gold, essence, materials, and monster fragments.
-10. Merge, recruit, evolve, and prepare for the next town.
-
-## Battle Flow
-
-### Scout Phase
-
-The player sees the isometric town before committing units.
-
-The scout view should show:
-
-- Town core.
-- Defenses.
-- Walls.
-- Roads.
-- Resource buildings.
-- Deployment edge.
-- Known traps.
-- Unknown suspicious tiles.
-
-### Squad Phase
-
-The player selects monsters from their available roster. Early versions can use a fixed squad limit. Later versions can use army capacity or command points.
-
-Example:
+Each town is a set of **independent structures**, all predetermined (authored by us):
 
 ```text
-6 Goblins
-2 Orcs
-1 Ogre
-1 Slime Familiar
+[ Outer Wall   DEF 3  | Wood  ]
+[ Gatehouse    DEF 6  | Iron  ]
+[ Arrow Tower  DEF 9  | Stone ]
+[ Town Core    DEF 14 | Holy  ]  <- destroy to conquer the town
 ```
 
-### Deployment Phase
-
-The player places monsters on valid edge tiles. Some monsters may require specific deployment rules.
-
-Examples:
-
-- Ground monsters deploy on roads, grass, or dirt.
-- Flying monsters deploy from cliff or sky-edge tiles.
-- Burrowers deploy from soft ground.
-- Slime-linked units must be deployed near the slime's influence.
-
-### Assault Phase
-
-After deployment, monsters act mostly on their own. The player's decisions are in preparation, placement, timing, and later special commands.
-
-Early behavior should be simple:
-
-- Move toward target.
-- Attack if in range.
-- Re-path if blocked.
-- Die at zero HP.
-
-### Result Phase
-
-The battle ends when:
-
-- The town core falls.
-- The player destroys enough of the town to retreat with rewards.
-- All deployed monsters are defeated.
-- A turn/time limit expires.
-
-## Win And Reward Model
-
-The game can support partial success.
-
-Possible star system:
+Combat is a single decisive **commit**: you allocate your hand into **lanes** (one combo
+per targeted structure) and resolve all at once. Each lane:
 
 ```text
-1 star: destroy 50% of town value
-2 stars: destroy the town core
-3 stars: destroy all key structures
+lane attack = (sum of lane ranks) x combo-mult x type-mult   (+/- element effects)
+
+combo-mult:  high 1   pair 2   triple 3   straight 4   flush 5   full house 6 ...
+type-mult:   strong 2.0    neutral 1.0    resisted 0.5
+
+lane attack >= structure DEF  ->  that structure is destroyed
 ```
 
-Rewards:
+Rules:
 
-- **Gold**: recruit basic monsters and buy camp upgrades.
-- **Essence**: slime evolution and rare abilities.
-- **Meat**: recruit beasts and sustain large monsters.
-- **Scrap**: armor, siege traits, shield units.
-- **Mana Shards**: magic monsters, shamans, hybrid upgrades.
-- **Relics**: unlock special monster lines or story progression.
+- **Independent targets**: any lane can target any structure. The **Core** is just the
+  highest-DEF target; destroying it conquers the town. Other structures are **bonus loot**,
+  not a gate - break them for extra gold/essence/cards.
+- A single low card can clear a small wall ("1 card = 1 structure"); the Core wants a real
+  combo and the right element.
+- You usually **can't break everything** with 7 cards - the puzzle is choosing what to
+  break and what to skip.
 
-For early development, use only gold and essence.
+### Siege Economy (One-Commit)
 
-## Monster Roles
+A town is resolved in one sculpt-and-commit cycle. All numbers are tuning starting points.
 
-### Goblin
+- **Scout**: the town's structures, DEFs, materials, and fight-back are shown up front
+  (they are predetermined), so you can plan your hand against them.
+- **Hand size**: **7 cards**, drawn from your deck.
+- **Sculpt - 2 turns**: each turn you may exchange cards (toss & redraw), up to **3 total**
+  across the two turns. The town's **fight-back fires each sculpt turn** (see below), so
+  stalling to sculpt has a cost.
+- **Commit**: split your 7 cards into lanes (1+ cards each), one combo per targeted
+  structure; resolve every lane simultaneously vs the predetermined DEFs.
+- **Outcome**:
+  - **Core destroyed** -> the town is **conquered** (permanent on the overworld).
+  - Non-core structures destroyed -> **bonus loot**.
+  - **Core survives** -> the slime takes expedition-HP damage; the node holds. If this was
+    the **keep**, the expedition ends in **retreat** (slime survives; held territory stays).
+- **Deck consistency note**: because you only draw ~7 (plus up to 3 exchanges) per town, a
+  **lean deck draws more reliably**. Growing the deck (drafts/merges) adds power but costs
+  consistency - a real risk/reward choice.
 
-Cheap, fast, fragile. Good at raiding resource buildings. Weak against towers.
+### Element Matchups
 
-### Orc
+Structures have materials. Damage multiplier is **strong x2 / neutral x1 / resist x0.5**;
+**Poison** ignores the resist case, **Frost** lowers the target structure's DEF.
 
-Balanced frontline unit. Attacks nearby enemies and buildings.
+| Element \ Material | Wood | Iron | Stone | Ice | Holy |
+|---|---|---|---|---|---|
+| **Fire** | x2 | x1 | x1 | x2 | x1 |
+| **Acid** | x1 | x2 | x2 | x1 | x0.5 |
+| **Physical** | x1 | x0.5 | x0.5 | x1 | x2 |
+| **Frost** (utility) | x1 | x1 | x1 | x0.5 | x1 |
+| **Poison** (utility) | x1 | x1 | x1 | x1 | x0.5* |
 
-### Ogre
+\* Poison ignores resistance, so its chip damage still lands on Holy.
 
-Slow tank and wall breaker. Draws tower fire and opens paths.
+This makes the **kingdoms** matter: Frost Holds are full of Ice Walls (bring Fire), the
+Sun Dominion has Holy Wards that resist Acid Slimes (bring Brutes / Physical).
 
-### Slime Familiar
+### Power Curve
 
-Small extension of the player. Can absorb residue and support merging.
+Structure DEF ramps within an expedition (early defenses DEF 3-6 -> keep up to ~16) and
+per kingdom (rough multipliers Frontier x1 -> Iron x1.5 -> Sun x2 -> Frost x2.5 -> Crown
+x3). The player keeps pace through **merges** (higher rank + new effects), **Alchemy**
+(bump rank / add element), **Training** (raise a combo multiplier for the run),
+**champion** drafts (J/Q/K), and **companion** passives. A healthy run roughly doubles
+output every few nodes to match the DEF curve.
 
-### Harpy
+### Town Fights Back
 
-Flying unit. Ignores walls but is vulnerable to archers and anti-air towers.
+The town's **attack** is predetermined and fires **during your 2 sculpt turns** - the only
+window before you commit - so sculpting longer means taking more punishment. Each sculpt
+turn the town may:
 
-### Shaman
+- Reinforce a structure's DEF (+DEF before your commit).
+- **Lock a suit** for the commit ("archers pin your Hearts").
+- Wound a card in your hand (reduce its rank).
+- Chip the slime's expedition HP.
 
-Support unit. Buffs nearby monsters and weakens holy defenses.
-
-### Troll
-
-Regenerating bruiser. Strong in long fights but expensive to field.
-
-### Wyvern
-
-Late-game flying siege unit. Powerful but countered by ballistae and mages.
+Boss keeps carry the toughest, stacked rules. This is the home for the anti-monster
+defenses (Holy Ward, Arrow Tower, Frost choke).
 
 ## Merge System
 
@@ -335,66 +280,169 @@ Simple merges:
 
 ```text
 Goblin + Goblin = Hobgoblin
-Orc + Orc = Brute Orc
-Ogre + Ogre = Stone Ogre
-Slime + Slime = Greater Slime
+Orc + Orc       = Brute Orc
+Ogre + Ogre     = Stone Ogre
+Slime + Slime   = Greater Slime
 ```
 
-Hybrid merges:
+Hybrid merges (across family and/or element):
 
 ```text
-Goblin + Harpy = Winged Goblin
-Ogre + Slime = Ooze Giant
-Shaman + Slime = Hex Slime
-Orc + Ogre = War Brute
-Troll + Shaman = Rune Troll
+Goblin + Harpy   = Winged Goblin
+Ogre + Slime     = Ooze Giant
+Shaman + Slime   = Hex Slime
+Orc + Ogre       = War Brute
+Troll + Shaman   = Rune Troll
+Caster(Fire) + Brute = Ember Brute  (re-typed)
 ```
 
 Merge design rules:
 
 - Every merge should change behavior, not just stats.
-- Early merges should be easy to understand.
-- Rare merges should require special materials or story unlocks.
+- Early merges are easy to understand.
+- Rare merges require special materials or story unlocks.
 - Failed experiments should not permanently punish the player early on.
+- Merging permanently consumes the fused cards (permadeath-aware).
 
-## Chess-Like Tactical Ideas
+## Horde (Companion Slots)
 
-The game can borrow from chess without becoming chess.
+Alongside your deck you field an **active Horde** of recruited monsters and **named
+companions** that passively buff sieges.
 
-Useful tactical patterns:
+- **Slots**: start with **3**, expandable to **5** via meta-unlocks.
+- **Earned at**: Recruit camps (gold), Events (story companions), and rare keep rewards.
+- **Effects** (passive, they stack):
 
-- Towers threaten tiles in simple readable shapes.
-- Some monsters move in fixed or patterned routes.
-- Deployment tiles matter as much as stats.
-- Certain units counter specific defense patterns.
-- The player can read the board before acting.
+```text
+Goblin Pack : +1 mult per Club played
+Dragon Kin  : your Diamond plays deal Fire
+Stone Ogre  : +50 attack when you play a pair
+War Shaman  : flush combos gain +1 mult
+Quartermaster : +1 exchange during sculpt
+```
 
-Example monster movement identities:
+- **Permadeath (controlled)**: companions are lost only when **you choose** (sacrificed at
+  a merge altar for a powerful fusion), in **scripted story beats**, or to **special boss
+  rules** - never to ordinary combat. A lost companion frees its slot for the rest of the
+  expedition; a story death also removes it from the campaign's unlock pool and rewrites
+  later scenes.
 
-- Goblins prefer zigzag routes through weak tiles.
-- Ogres move straight toward walls and gates.
-- Harpies cross diagonally over blocked terrain.
-- Slimes ooze to adjacent residue or damaged structures.
-- Shamans follow allied clusters instead of leading.
+## Slime Evolution Cores (Hero)
+
+At run start the player picks a Slime Core, each changing the rules of the run:
+
+- **Commander Core**: extra plays per town / bonus to large combos.
+- **Absorber Core**: steal cards from conquered towns.
+- **Alchemist Core**: stronger merges and card re-typing.
+- **Warden Core**: healing and survivability between fights.
+
+The slime levels via story beats between regions.
+
+## Run Structure
+
+The game has **two map layers**: a persistent overworld and a fresh roguelike expedition.
+
+### Overworld (persistent)
+
+A map of the five kingdoms, mostly linear by difficulty with some branching:
+
+```text
+Frontier Farmlands -> Iron Marches -> Sun Dominion -> Frost Holds -> Crown Engine Capital
+```
+
+Each kingdom contains **several towns/strongholds**; conquering all of a kingdom's towns
+opens the next kingdom. Conquered towns stay yours and become supply/recruit points (your
+HQ on conquered land). What **persists** on the overworld: conquered territory, the
+slime's evolution core and its level, story progress, banked **essence**, and
+**meta-unlocks** (the pool of cards and companions you can draft, starting kits, and
+boons).
+
+Between expeditions, at HQ, the player spends persistent resources to unlock draftable
+cards/companions and starting boons, evolve the slime, and advance the story, then picks
+the next **town** to invade.
+
+### Expedition (a fresh roguelike run)
+
+One expedition = the assault on **one overworld town**. It is a branching **node path** of
+**~8-12 nodes** built from a starting deck (a basic kit scaled by your launch territory,
+chosen core, and unlocks). The nodes are the town's approach and layered defenses -
+patrols, outposts, supply camps, events - culminating in a **boss node: the town's keep**
+(the full multi-structure siege). Target length is ~35-50 minutes.
+
+Node types:
+
+- **Defense** (siege combat): an outpost, patrol, or wall line - a small siege
+  (a structure or two). The recurring core combat encounter.
+- **Keep** (boss siege): the town's core - the full Wall->Gate->Tower->Core fight with the
+  toughest fight-back rules. Ends the expedition; winning conquers the town.
+- **Recruit camp** (shop): draft cards and horde companions for this expedition.
+- **Merge altar**: fuse cards into stronger monsters.
+- **Event**: story beats and choices - where humans can ally.
+- **Rest**: heal / evolve.
+- **Training**: level a poker combo for this expedition.
+- **Alchemy**: re-type or transform cards.
+
+The deck is **built during the expedition and reset afterward** - only territory and
+meta-unlocks carry over. **Permadeath** is at expedition scope: cards and companions that
+fall are gone for that run. **Winning** permanently conquers the territory and grants
+meta rewards. **Losing** (or retreating) costs the expedition deck and its gains, but the
+Slime always survives and the territory you already held stays conquered - you regroup at
+HQ and try again.
+
+## World Structure
+
+Each region has a difficulty gradient and a defensive identity that the element/structure
+system expresses.
+
+### Frontier Farmlands
+
+Tutorial region. Defenses: fences, watch posts, militia, wooden arrow towers, basic
+gates. Monster families introduced: Goblins, Slimes, Brutes.
+
+### Iron Marches
+
+First real resistance. Defenses: stone walls, crossbow towers, patrol guards, spike
+traps, armored gatehouses. Introduces tougher Brutes and shielded units.
+
+### Sun Dominion
+
+Anti-monster magic. Defenses: priests, holy shrines, fire towers, burning oil, wards that
+resist Slimes and weaken regeneration. Introduces Casters and Hex Slimes.
+
+### Frost Holds
+
+Movement and tempo disruption. Defenses: slow auras, ice walls, long-range ballista,
+frozen choke points. Bring Fire. Introduces Frost-typed monsters.
+
+### Crown Engine Capital
+
+Late-game escalation. Defenses: cannons, elite knights, mage towers, anti-slime machines,
+research labs, boss commanders. The seat of the Crown Engine. Introduces Wyverns and named
+champions.
+
+## Win and Reward Model
+
+A town is conquered when its **Town Core** is destroyed. Partial sieges can still grant
+salvage if you retreat after breaking some structures.
+
+Rewards:
+
+- **Gold**: recruit cards and horde companions at camps.
+- **Essence**: slime evolution and rare abilities.
+- **Relics**: unlock special monster lines or story progression.
+
+For early development, use only **gold** and **essence**.
 
 ## Visual Direction
 
-The game should use a 2.5D isometric tile view.
+Early visuals are functional and card-first:
 
-Early visuals:
+- Cards rendered as colored panels showing rank, suit/family glyph, and an element pip.
+- The town drawn as a vertical stack of structure cards with DEF, material, and rules.
+- Clear attack math feedback (the `ranks x combo x type` breakdown shown on play).
 
-- Diamond tiles.
-- Simple colored unit markers.
-- Blocky towers and buildings.
-- Clear range overlays.
-
-Later visuals:
-
-- Tiled isometric maps.
-- Animated monster sprites.
-- Distinct kingdom architecture.
-- Readable attack effects.
-- UI panels for squad, resources, and battle results.
+Later visuals: monster art on cards, animated card play and merges, distinct kingdom
+backdrops, readable damage numbers, and polished UI panels for horde, shop, and results.
 
 ## Technical Direction
 
@@ -405,98 +453,53 @@ Engine:
 
 Planned libraries:
 
-- **hump** for camera, game states, timers, and vectors.
-- **anim8** for sprite-sheet animation.
-- **Tiled** for map creation.
-- **STI** for loading Tiled maps in Love2D.
+- **hump** for game states, camera, and timers.
+- **flux** for card tweens and UI/gameplay effects.
+- **lume** for helper functions.
+- **SUIT** (or a small custom immediate-mode UI) for menus and the shop.
+- **anim8** later, for sprite/card animation.
+
+Deliberately dropped from the earlier isometric plan: Tiled, STI, Jumper, and tiny-ecs
+movement - the deckbuilder needs none of them.
 
 Development approach:
 
-- Start with Love2D built-ins and simple Lua tables.
-- Prove gameplay rules before adding map/editor complexity.
-- Keep logic tile-based even when visuals are isometric.
-- Add libraries only when the feature needs them.
+- Keep the **combo + siege resolver a pure Lua function** so it can be unit-tested.
+- Prove the siege loop with placeholder card art before adding content.
+- Add libraries only when a feature needs them.
 
 ## Development Roadmap
 
 ### Phase 0: Design Foundation
 
-Goal: lock the story, gameplay pillars, first region, first unit set, and technical constraints.
+Lock the story, mechanics, first region, first card/element set, and constraints.
+Deliverables: this bible, [STORY.md](STORY.md), [ARCHITECTURE.md](ARCHITECTURE.md),
+[TICKETS.md](TICKETS.md).
 
-Deliverables:
+### Phase 1: Siege Proof
 
-- This design bible.
-- First vertical slice plan.
-- First region content list.
-- Initial unit/defense stat sheet.
+One structure, one hand, the pure resolver computing `ranks x combo x type` vs DEF,
+win/lose, restart.
 
-### Phase 1: Core Battle Prototype
+### Phase 2: The Siege
 
-Goal: prove one raid.
+A 3-4 independent-structure town with lane allocation, one "town fights back" rule, and a
+basic element matchup table.
 
-Features:
+### Phase 3: The Run
 
-- Isometric grid.
-- One town core.
-- One tower.
-- One monster.
-- Auto movement.
-- HP and damage.
-- Win/loss state.
-
-### Phase 2: Tactical Prototype
-
-Goal: make decisions interesting.
-
-Features:
-
-- Deployment tiles.
-- Two or three monster types.
-- Two defenses.
-- Walls.
-- Basic target priorities.
-- Simple rewards.
-
-### Phase 3: Progression Prototype
-
-Goal: make battles connect.
-
-Features:
-
-- Gold and essence.
-- Recruit screen.
-- Merge screen.
-- Slime evolution menu.
-- Three linked towns.
+A short ante (small -> big -> boss town), a recruit shop, a merge altar, and Slime Core
+selection.
 
 ### Phase 4: Vertical Slice
 
-Goal: one polished mini-region.
-
-Features:
-
-- Frontier Farmlands region map.
-- Five towns.
-- One boss town.
-- Tiled maps through STI.
-- Basic sprite animation through anim8.
-- Save/load.
-- Music and sound pass.
+The full Frontier Farmlands region: several towns, one boss capital, the recruit/merge/
+event/rest node map, save/load, basic sound.
 
 ### Phase 5: Production Expansion
 
-Goal: build toward the full game over several months.
-
-Features:
-
-- More regions.
-- More monster lines.
-- More defenses.
-- Story events.
-- Balance pass.
-- UI polish.
-- Accessibility pass.
-- Packaging and release pipeline.
+More regions, more card/element/horde content, story events and dialogue, balance pass,
+UI polish, accessibility, packaging.
 
 ## First Vertical Slice Target
 
@@ -504,24 +507,15 @@ The first real vertical slice should not try to build the whole game.
 
 Recommended target:
 
-- One region: Frontier Farmlands.
-- Three normal villages.
-- One fortified trade town.
-- One region boss village.
-- Four player units: Goblin, Orc, Ogre, Slime Familiar.
-- Three defenses: Arrow Tower, Militia Hut, Wooden Wall.
+- One region: Frontier Farmlands, **one town** to conquer.
+- A short expedition (~5-6 nodes for the MVP; the full ~8-12 comes later) ending in the
+  town's keep.
+- One Slime Core to start with (Commander).
+- A small starting deck (~16 cards) across the four families, with a small element set
+  (Fire / Acid / Physical / Poison) and a basic matchup table; it grows via drafts/merges.
+- Multi-structure towns (Wall / Gate / Tower / Core).
+- One "town fights back" rule per town tier.
+- Merge altar with three recipes.
+- Recruit camp with a few cards and one horde companion.
 - Two resources: Gold and Essence.
-- One merge screen with three recipes.
-- One slime evolution choice.
-
-## Open Questions
-
-These should be decided before production expands:
-
-- Is the player slime visible on every battlefield or mostly represented through UI?
-- Can monsters permanently die, or do they return after battle?
-- Is the story comedic, serious, or evenly mixed?
-- Does the player conquer towns permanently or raid and move on?
-- Are humans always enemies, or can some factions ally with the slime?
-- Should battles be fully real-time, turn-stepped, or pausable real-time?
-
+- Win/loss + result screen + restart.

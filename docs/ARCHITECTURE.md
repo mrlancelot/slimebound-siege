@@ -2,43 +2,44 @@
 
 ## Goal
 
-Build the first playable version as a tiny Clash of Clans-style monster raid:
+Build the first playable version as a tiny roguelike **siege deckbuilder**:
 
-- One isometric village.
-- Player deploys monsters from map edges.
-- Monsters automatically choose targets by priority.
-- Village defenses attack back.
-- The raid ends in victory or defeat.
+- A growing deck of monster cards (drawn from a 52-card vocabulary; suit = family, rank,
+  plus an element axis). The deck starts small and grows via drafts/merges (Marching Deck).
+- A town made of stacked structures, each with DEF and a material/element.
+- The player plays poker combos as siege assaults; `attack = ranks x combo x type`.
+- Lanes break independent structures; destroying the Town Core conquers the town.
+- The town fights back between assaults.
+- The siege ends in victory (core destroyed) or defeat (out of hands).
 
-The first implementation should prove the full game loop with placeholder art and very small commits.
+The first implementation should prove the full siege loop with placeholder card art and
+very small commits.
 
 ## MVP Definition
 
-The first MVP is **one village**, not the whole game.
+The first MVP is **one siege**, not the whole game.
 
 It should include:
 
-- One handmade isometric Tiled map.
-- One deployment edge.
-- Three monster types.
-- One wall line.
-- One resource hut.
-- One tower.
-- One guard.
-- One village core.
-- Win/loss result screen.
+- A starting deck (~16 cards from the 52-card vocabulary: suit + rank + element), rendered
+  as placeholder cards.
+- The One-Commit loop: draw 7 -> 2 sculpt turns (exchange <=3) -> commit lanes.
+- One town of 3-4 **independent** structures (Wall / Gate / Tower / Core).
+- A **pure-Lua lane + siege resolver**.
+- One element matchup table (incl. Frost DEF-reduction, Poison ignore-resist).
+- One "town fights back" (sculpt-phase) rule.
+- Win (Core destroyed) / shortfall result screen + restart.
 
 It should not include:
 
-- Merge system.
-- World map.
-- Save/load.
-- Multiple villages.
+- The full element roster.
+- The whole 5-kingdom run map.
+- Named-companion story arcs.
 - Final art.
-- Full story dialogue.
-- Complex economy.
+- Save/load polish.
+- Training/Alchemy nodes.
 
-Those come after the raid loop works.
+Those come after the siege loop works.
 
 ## Technical Stack
 
@@ -46,22 +47,22 @@ Those come after the raid loop works.
 
 - **Love2D**: game loop, drawing, input, audio, window.
 - **Lua**: game logic.
-- **Tiled**: village map editor.
-- **STI**: load and draw Tiled maps in Love2D.
-- **hump**: game states, camera, timers.
-- **tiny-ecs**: entities and systems.
-- **Jumper**: tile pathfinding.
-- **SUIT**: MVP/debug UI.
-- **baton**: input mapping.
-- **lume**: helper functions.
-- **flux**: small tweens and UI/gameplay effects.
-- **anim8**: later sprite animation.
+- **hump**: game states (`gamestate`), camera, timers.
+- **flux**: card tweens and small UI/gameplay effects.
+- **lume**: helper functions (tables, math, serialization helpers).
+- **SUIT**: menus, shop, and debug UI (or a small custom immediate-mode UI).
 
 ### Planned Later
 
-- **Ink/Tinta**: story and branching dialogue.
-- Audio helper library if Love2D audio management becomes repetitive.
-- Packaging helpers for release builds.
+- **anim8**: card/sprite animation once there is art.
+- **Ink/Tinta**: branching dialogue (see [DIALOGUE.md](DIALOGUE.md)).
+- Audio and packaging helpers as needed.
+
+### Deliberately Dropped
+
+The earlier isometric plan required **Tiled, STI, Jumper, and tiny-ecs movement**. A
+deckbuilder needs none of these - there is no map, no pathfinding, and no real-time
+entity simulation. They are removed from the dependency plan.
 
 ## Folder Layout
 
@@ -69,29 +70,27 @@ Target structure:
 
 ```text
 assets/
-  maps/
-  sprites/
+  cards/        placeholder card art later
   audio/
 docs/
   GAME_DESIGN.md
+  STORY.md
   ARCHITECTURE.md
   TICKETS.md
+  DIALOGUE.md
 lib/
   hump/
-  sti/
-  jumper/
-  tiny-ecs.lua
-  suit.lua
-  baton.lua
-  lume.lua
   flux.lua
-  anim8.lua
+  lume.lua
+  suit.lua
 src/
-  core/
-  data/
-  states/
-  systems/
-  ui/
+  core/         deck, run, save, rng
+  data/         cards, elements, structures, towns, jokers, events
+  combat/       the pure resolver + siege state
+  states/       menu, run/map, combat, shop, event, result
+  ui/           card rendering, town column, hud
+tests/
+  resolver_spec.lua
 ```
 
 ## Runtime Flow
@@ -99,256 +98,189 @@ src/
 ```text
 main.lua
   -> src/game.lua
-    -> BootState
-      -> BattleState
-        -> ResultState
+    -> MenuState           (title, pick Slime Core, new/continue campaign)
+      -> OverworldState    (persistent map of kingdoms; pick a target)
+        -> ExpeditionState (a fresh roguelike node run)
+          -> CombatState   (a siege)
+          -> ShopState     (recruit camp)
+          -> EventState    (story + choices)
+          -> ResultState   (expedition victory/defeat summary)
+        (win -> conquer that town on the overworld; lose -> retreat, keep prior territory)
 ```
 
-### BootState
+### MenuState
 
-Responsible for:
+- Title screen, Slime Core selection, start or continue a campaign.
 
-- Loading libraries.
-- Loading basic config.
-- Entering `BattleState`.
+### OverworldState (persistent / the campaign save)
 
-### BattleState
+- Owns what persists: conquered territory, slime core + level, banked essence, story
+  flags, and meta-unlocks (draftable card/companion pool, starting kits, boons).
+- The player picks the next kingdom/town to invade, which launches an expedition.
+- This is the layer that is serialized to the save file.
 
-Responsible for:
+### ExpeditionState (a fresh roguelike run)
 
-- Loading village map.
-- Creating ECS world.
-- Spawning buildings and defenders.
-- Handling player deployment.
-- Updating systems.
-- Drawing map, entities, and UI.
-- Detecting win/loss.
+- Owns the per-expedition state: the starting deck (scaled by launch territory + core +
+  unlocks), the branching node map, gold, the horde, and run flags.
+- Routes the player into Combat / Shop / Event / Merge / Rest nodes and back.
+- The deck is built during the expedition and **discarded when it ends** (win, lose, or
+  retreat). On win, it reports the conquered territory + meta rewards back to the
+  overworld; on loss the slime retreats and only meta/territory persist.
+
+### CombatState (One-Commit Siege)
+
+- Loads a town (a list of independent structure definitions) and shows it (scout).
+- Draws a **7-card hand** from the expedition deck.
+- Runs **2 sculpt turns**: the player exchanges up to 3 cards total; the town's predetermined
+  fight-back fires each sculpt turn (reinforce DEF / lock a suit / wound a card / chip slime HP).
+- Handles **lane allocation**: the player splits the 7 cards into lanes, one combo per
+  targeted structure (any lane -> any structure).
+- On **commit**, calls the resolver per lane and applies all results at once.
+- Detects victory (Core destroyed -> town conquered) / shortfall (Core survives -> slime
+  takes HP damage; on a keep, retreat). Non-core structures destroyed award bonus loot.
 
 ### ResultState
 
-Responsible for:
+- Shows victory/defeat and a summary; returns to the run (or ends it on a fatal defeat).
 
-- Showing victory/defeat.
-- Showing simple summary.
-- Restarting the battle.
+## Data Model
 
-## Entity Model
+Plain Lua tables - no ECS needed.
 
-Use `tiny-ecs` for raid gameplay.
-
-Entities:
-
-- Monster.
-- Building.
-- Wall.
-- Tower.
-- Guard.
-- Projectile/effect.
-
-Common components:
+### Card
 
 ```text
-Position      tileX, tileY, worldX, worldY
-Health        hp, maxHp
-Team          monster or village
-Renderable    shape/sprite/color
-Targeting     priorities
-Path          nodes, currentNode
-Movement      speed
-Attack        damage, range, cooldown, timer, kind
-Building      buildingType
-Blocker       blocksPath
+Card        suit, rank, element, id
+            (suit -> family; rank -> value; element -> matchup tag)
+            merged cards add: name, effects, sourceCards
 ```
 
-Do not overbuild components before they are needed. Add components only when a ticket needs them.
-
-## Map Model
-
-The first village map should be handmade in Tiled.
-
-Required layers:
-
-- `ground`: visual tiles.
-- `buildings`: visual map structures.
-- `collision`: blocked tiles.
-- `deployment`: tiles where monsters can be deployed.
-- `objects`: named objects for tower, guard, core, resource hut.
-
-Required object names:
+### Structure
 
 ```text
-core
-tower_01
-guard_01
-resource_hut_01
+Structure   name, def, material, element, rule, destroyed
 ```
 
-Required custom properties:
+### Town
 
 ```text
-type
-hp
-team
+Town        name, region, structures (front -> back), fightBackRule, rewards
 ```
 
-## Monster Types
+### Horde companion (Joker)
 
-### Goblin
+```text
+Companion   name, family/element bias, passive effect, alive, storyId
+```
 
-Purpose: resource raider.
+### Campaign state (persistent - serialized to the save file)
 
-Target priority:
+```text
+Campaign    core, coreLevel, territory[], essence, unlocks[], storyFlags[]
+```
 
-1. Resource hut.
-2. Village core.
-3. Nearest building.
+### Expedition state (transient - lives only for one run, not saved long-term)
 
-Combat:
+```text
+Expedition  deck, horde, gold, region, node, seed, runFlags
+```
 
-- Melee.
-- Low HP.
-- Fast movement.
+Add fields only when a ticket needs them.
 
-### Ogre
+## Combat Resolver (the core, pure)
 
-Purpose: wall breaker and tank.
+The resolver is a **pure function** - no Love2D calls, no globals - so it can be unit
+tested with plain `lua`/`luajit`.
 
-Target priority:
+A **lane** is the set of cards aimed at one structure. The resolver scores one lane; the
+commit step scores every lane at once.
 
-1. Wall blocking path.
-2. Village core.
-3. Tower.
+```text
+evaluateCombo(cards)      -> { kind = "flush", mult = 5, rankSum = 27 }
+typeMultiplier(element, structureMaterial) -> 2.0 | 1.0 | 0.5
+resolveLane(cards, structure)
+    combo  = evaluateCombo(cards)
+    elem   = dominantElement(cards)
+    type   = typeMultiplier(elem, structure.material)
+    def    = structure.def - frostReduction(cards)        -- Frost lowers DEF
+    attack = combo.rankSum * combo.mult * type
+    if hasPoison(cards) then attack = ignoreResist(attack, type, cards) end
+    return { attack = attack, destroyed = attack >= def, combo, type, element = elem }
 
-Combat:
+resolveCommit(lanes, town)            -- lanes: { [structureId] = cards }
+    -> per-lane results; town conquered if the Core lane destroyed it
+```
 
-- Melee.
-- High HP.
-- Slow movement.
-- Bonus damage to walls.
+Combo tiers (initial): high card (1), pair (2), three of a kind (3), straight (4),
+flush (5), full house (6), four of a kind (7), straight flush (8).
 
-### Imp
+`dominantElement(cards)` picks the element used for the matchup (e.g. the majority
+element of the lane; ties resolved by a documented rule).
 
-Purpose: ranged attacker.
+Elements are **3 damage + 2 utility** (all pure in the resolver):
 
-Target priority:
+- **Fire / Acid / Physical**: damage only, via `typeMultiplier`.
+- **Frost**: `frostReduction` lowers the target structure's effective DEF before compare.
+- **Poison**: `ignoreResist` - the lane's damage is not reduced by the x0.5 resist case.
 
-1. Guard.
-2. Tower.
-3. Village core.
-
-Combat:
-
-- Ranged.
-- Medium speed.
-- Low HP.
-
-## Village Defenders
-
-### Tower
-
-Behavior:
-
-- Does not move.
-- Targets nearest monster in range.
-- Deals ranged damage on cooldown.
-
-### Guard
-
-Behavior:
-
-- Starts at object position.
-- Targets nearest monster.
-- Paths toward monster.
-- Attacks in melee range.
+Per-monster **abilities** (see MONSTERS.md) are applied as lane modifiers around this core
+(extra attack, mult, DEF reduction, multi-lane, etc.).
 
 ## Targeting Rules
 
-Each monster chooses targets by priority list.
+- Structures are **independent targets** - any lane may target any structure.
+- The **Core** is just the highest-DEF target; destroying it conquers the town.
+- Non-core structures are optional: destroying them grants bonus loot, not access.
+- A monster may only occupy one lane, except abilities that explicitly allow more (Imp).
 
-Algorithm:
+## Town-Fights-Back Rules
 
-1. Read monster priority list.
-2. Find alive entities matching first priority.
-3. If any exist, choose nearest reachable target.
-4. If none exist, try next priority.
-5. If no target exists, idle.
+The town acts during the player's **2 sculpt turns** (its only window before the commit).
+MVP supports one rule per town; later towns combine several:
 
-Distance is tile distance for target choice.
+- Reinforce a structure's DEF.
+- Lock a suit for the commit.
+- Wound a card in hand (reduce its rank).
+- Chip the slime's expedition HP.
 
-Reachability uses Jumper pathfinding.
+Boss keeps carry the strongest, stacked rules.
 
-## Pathfinding Rules
+## Combat End Rules
 
-Use a grid based on map tiles.
+Victory:
 
-Blocked tiles:
+- Town Core destroyed by its lane on commit -> town conquered.
 
-- Walls.
-- Buildings.
-- Collision layer tiles.
+Shortfall / defeat:
 
-Melee units path to an adjacent open tile next to the target.
-
-Ranged units path until the target is within attack range.
-
-If a target dies:
-
-- Clear current target.
-- Clear path.
-- Re-target next update.
-
-If a path becomes blocked:
-
-- Request a new path.
-
-## Combat Rules
-
-Attack timing:
-
-- Each attacker has a cooldown.
-- Timer decreases during update.
-- If target is in range and timer <= 0, deal damage.
-- Reset timer to cooldown.
-
-Damage:
-
-- Subtract HP from target.
-- If HP <= 0, mark entity dead.
-- Cleanup system removes dead entities.
-
-Win condition:
-
-- Village core HP reaches 0.
-
-Loss condition:
-
-- No deployed monsters alive.
-- No squad units remaining to deploy.
+- Core survives the commit -> the slime takes expedition-HP damage; the node holds.
+- (Expedition-level) the slime's expedition HP reaches zero, or the **keep** is not taken
+  -> the slime **retreats**: the expedition ends, its deck/gains are lost, but the campaign
+  and held territory persist.
 
 ## UI Rules
 
-MVP UI uses SUIT.
+MVP UI uses SUIT (or a small custom immediate-mode UI).
 
-Required battle UI:
+Required combat UI:
 
-- Selected monster type.
-- Remaining Goblins.
-- Remaining Ogres.
-- Remaining Imps.
-- Core HP.
-- Restart button.
-- Debug overlay toggle.
+- The 7-card hand with selection state.
+- The town drawn as structure cards (DEF, material, rule), each a droppable lane target.
+- The live attack breakdown for the pending lane (`rankSum x combo x type`, +/- effects).
+- Sculpt turns left and exchanges remaining (of 3).
+- Assign-to-lane / exchange / commit buttons.
+- Restart and a debug overlay toggle.
 
-Controls:
+Controls (initial):
 
 ```text
-1: select Goblin
-2: select Ogre
-3: select Imp
-Left click: deploy selected monster on valid deployment tile
-Right click or Escape: cancel / quit depending state
-R: restart battle
-Tab: toggle debug overlays
+Left click   : select/deselect a card; click a structure to assign the lane
+E            : exchange selected cards (during sculpt; costs from the 3-card budget)
+Enter        : end sculpt turn / COMMIT all lanes
+R            : restart siege
+Tab          : toggle debug overlay
+Esc          : back / quit depending on state
 ```
 
 ## Development Rules
@@ -357,7 +289,7 @@ Every implementation ticket should be tiny.
 
 Target:
 
-- No ticket should require more than 10 lines of code.
+- No ticket should require more than about 10 lines of code.
 - If it needs more, split the ticket.
 - Prefer many small commits over one big feature commit.
 
@@ -365,34 +297,26 @@ Allowed ticket result examples:
 
 - Add one empty file.
 - Add one require.
-- Add one component.
-- Add one system stub.
-- Add one field to unit data.
+- Add one data field.
+- Add one resolver branch.
 - Add one draw call.
 - Add one acceptance test.
 
-Avoid:
-
-- "Implement combat."
-- "Add pathfinding."
-- "Build the UI."
-
-Those are too large and must be split.
+Avoid: "Implement combat.", "Add the resolver.", "Build the UI." - too large; split them.
 
 ## Acceptance Criteria For First Playable
 
-The first playable village is done when:
+The first playable siege is done when:
 
-- The map loads.
-- Buildings and defenders spawn from map data.
-- Player can select and deploy all three monster types.
-- Monsters choose targets by priority.
-- Monsters path around blocked tiles.
-- Monsters attack targets.
-- Tower attacks monsters.
-- Guard chases and attacks monsters.
-- Destroying the core triggers victory.
-- Losing all monsters triggers defeat.
+- A starting deck builds and a 7-card hand draws.
+- The town renders as independent structure cards from data.
+- The player can sculpt: exchange up to 3 cards over 2 sculpt turns.
+- The player can assign cards into lanes (any lane -> any structure) and commit.
+- The resolver computes `rankSum x combo x type` (+ Frost/Poison) and shows the breakdown.
+- A lane destroys its structure when `attack >= DEF`.
+- The town fights back during sculpt with at least one rule.
+- Destroying the Core triggers victory; non-core structures award bonus loot.
+- A surviving Core triggers shortfall/retreat.
 - Restart works.
-- `make check` passes.
-
+- The resolver has passing unit tests.
+- `make check` / `./build.ps1 check` passes.

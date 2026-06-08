@@ -1,406 +1,233 @@
-# Slimebound Siege Micro-Ticket Backlog
-
-## Ticket Rules
-
-Each ticket should be small enough to implement in about 10 lines of code or less.
-
-If a ticket feels larger than that, split it before coding.
-
-Ticket IDs use:
-
-```text
-major.minor.micro
-```
-
-Example:
-
-```text
-1.4.3
-```
-
-## 1.1 Documentation Foundation
-
-- `1.1.1` Create `docs/ARCHITECTURE.md`.
-- `1.1.2` Create `docs/TICKETS.md`.
-- `1.1.3` Link architecture doc from README.
-- `1.1.4` Link ticket doc from README.
-- `1.1.5` Add "one village MVP" section to `GAME_DESIGN.md`.
-- `1.1.6` Add "10-line ticket rule" to `GAME_DESIGN.md`.
-- `1.1.7` Add "COC-style targeting" note to `GAME_DESIGN.md`.
-- `1.1.8` Add first playable acceptance list to README.
-
-## 1.2 Library Planning
-
-- `1.2.1` Add `lib/README.md`.
-- `1.2.2` List `hump` source URL.
-- `1.2.3` List `STI` source URL.
-- `1.2.4` List `Jumper` source URL.
-- `1.2.5` List `tiny-ecs` source URL.
-- `1.2.6` List `SUIT` source URL.
-- `1.2.7` List `baton` source URL.
-- `1.2.8` List `lume` source URL.
-- `1.2.9` List `flux` source URL.
-- `1.2.10` List `anim8` source URL.
-- `1.2.11` Add vendoring rule: copy source into `lib/`.
-- `1.2.12` Add fallback rule for libraries that fail to integrate.
-
-## 1.3 Folder Structure
-
-- `1.3.1` Create `assets/maps/`.
-- `1.3.2` Create `assets/sprites/`.
-- `1.3.3` Create `assets/audio/`.
-- `1.3.4` Create `src/core/`.
-- `1.3.5` Create `src/data/`.
-- `1.3.6` Create `src/states/`.
-- `1.3.7` Create `src/systems/`.
-- `1.3.8` Create `src/ui/`.
-- `1.3.9` Add `.gitkeep` to empty asset folders.
-- `1.3.10` Add `.gitkeep` to empty source folders.
-
-## 1.4 Vendor Libraries
-
-- `1.4.1` Vendor `hump/gamestate.lua`.
-- `1.4.2` Vendor `hump/camera.lua`.
-- `1.4.3` Vendor `hump/timer.lua`.
-- `1.4.4` Vendor `STI`.
-- `1.4.5` Vendor `Jumper`.
-- `1.4.6` Vendor `tiny-ecs`.
-- `1.4.7` Vendor `SUIT`.
-- `1.4.8` Vendor `baton`.
-- `1.4.9` Vendor `lume`.
-- `1.4.10` Vendor `flux`.
-- `1.4.11` Vendor `anim8`.
-- `1.4.12` Add one Lua require smoke file for `hump`.
-- `1.4.13` Add one Lua require smoke file for `STI`.
-- `1.4.14` Add one Lua require smoke file for `Jumper`.
-- `1.4.15` Add one Lua require smoke file for `tiny-ecs`.
-- `1.4.16` Add one Lua require smoke file for `SUIT`.
-- `1.4.17` Add one Lua require smoke file for `baton`.
-- `1.4.18` Add one Lua require smoke file for `lume`.
-- `1.4.19` Add one Lua require smoke file for `flux`.
-- `1.4.20` Add one Lua require smoke file for `anim8`.
-
-## 1.5 Game State Setup
-
-- `1.5.1` Create empty `BootState`.
-- `1.5.2` Create empty `BattleState`.
-- `1.5.3` Create empty `ResultState`.
-- `1.5.4` Require hump gamestate in `game.lua`.
-- `1.5.5` Switch from placeholder scene to `BootState`.
-- `1.5.6` Make `BootState` enter `BattleState`.
-- `1.5.7` Add `enter` method to `BattleState`.
-- `1.5.8` Add `update` method to `BattleState`.
-- `1.5.9` Add `draw` method to `BattleState`.
-- `1.5.10` Add restart transition to `ResultState`.
-
-## 1.6 Input Setup
-
-- `1.6.1` Create `src/core/input.lua`.
-- `1.6.2` Require baton in input module.
-- `1.6.3` Map key `1` to `select_goblin`.
-- `1.6.4` Map key `2` to `select_ogre`.
-- `1.6.5` Map key `3` to `select_imp`.
-- `1.6.6` Map left click to `deploy`.
-- `1.6.7` Map right click to `cancel`.
-- `1.6.8` Map `r` to `restart`.
-- `1.6.9` Map `tab` to `debug`.
-- `1.6.10` Expose input update function.
-
-## 1.7 Map Creation
-
-- `1.7.1` Create `assets/maps/village_01.tmx` in Tiled.
-- `1.7.2` Add `ground` layer.
-- `1.7.3` Add `buildings` layer.
-- `1.7.4` Add `collision` layer.
-- `1.7.5` Add `deployment` layer.
-- `1.7.6` Add `objects` layer.
-- `1.7.7` Add object `core`.
-- `1.7.8` Add object `tower_01`.
-- `1.7.9` Add object `guard_01`.
-- `1.7.10` Add object `resource_hut_01`.
-- `1.7.11` Add wall tiles to collision layer.
-- `1.7.12` Add edge tiles to deployment layer.
-
-## 1.8 Map Loading
-
-- `1.8.1` Create `src/core/map_loader.lua`.
-- `1.8.2` Require STI in map loader.
-- `1.8.3` Load `village_01.tmx`.
-- `1.8.4` Return map object from loader.
-- `1.8.5` Draw map in BattleState.
-- `1.8.6` Read collision layer.
-- `1.8.7` Store blocked tile list.
-- `1.8.8` Read deployment layer.
-- `1.8.9` Store deployment tile list.
-- `1.8.10` Read object layer.
-- `1.8.11` Store named map objects.
-
-## 1.9 Entity World
-
-- `1.9.1` Create `src/core/world.lua`.
-- `1.9.2` Require tiny-ecs.
-- `1.9.3` Create ECS world factory.
-- `1.9.4` Add system registration function.
-- `1.9.5` Add entity add helper.
-- `1.9.6` Add entity remove helper.
-- `1.9.7` Store ECS world in BattleState.
-
-## 1.10 Components
-
-- `1.10.1` Add `Position` component table.
-- `1.10.2` Add `Health` component table.
-- `1.10.3` Add `Team` component table.
-- `1.10.4` Add `Renderable` component table.
-- `1.10.5` Add `Targeting` component table.
-- `1.10.6` Add `Path` component table.
-- `1.10.7` Add `Movement` component table.
-- `1.10.8` Add `Attack` component table.
-- `1.10.9` Add `Building` component table.
-- `1.10.10` Add `Blocker` component table.
-
-## 1.11 Unit Data
-
-- `1.11.1` Create `src/data/units.lua`.
-- `1.11.2` Add Goblin name.
-- `1.11.3` Add Goblin HP.
-- `1.11.4` Add Goblin speed.
-- `1.11.5` Add Goblin melee damage.
-- `1.11.6` Add Goblin target priority.
-- `1.11.7` Add Ogre name.
-- `1.11.8` Add Ogre HP.
-- `1.11.9` Add Ogre speed.
-- `1.11.10` Add Ogre melee damage.
-- `1.11.11` Add Ogre target priority.
-- `1.11.12` Add Imp name.
-- `1.11.13` Add Imp HP.
-- `1.11.14` Add Imp speed.
-- `1.11.15` Add Imp ranged damage.
-- `1.11.16` Add Imp target priority.
-
-## 1.12 Building Data
-
-- `1.12.1` Create `src/data/buildings.lua`.
-- `1.12.2` Add core data.
-- `1.12.3` Add tower data.
-- `1.12.4` Add resource hut data.
-- `1.12.5` Add wall data.
-- `1.12.6` Add guard data.
-- `1.12.7` Add building HP values.
-- `1.12.8` Add tower range.
-- `1.12.9` Add tower damage.
-- `1.12.10` Add guard damage.
-
-## 1.13 Entity Factories
-
-- `1.13.1` Create monster factory file.
-- `1.13.2` Add Goblin factory.
-- `1.13.3` Add Ogre factory.
-- `1.13.4` Add Imp factory.
-- `1.13.5` Create building factory file.
-- `1.13.6` Add core factory.
-- `1.13.7` Add tower factory.
-- `1.13.8` Add resource hut factory.
-- `1.13.9` Add wall factory.
-- `1.13.10` Add guard factory.
-
-## 1.14 Village Spawning
-
-- `1.14.1` Spawn core from map object.
-- `1.14.2` Spawn tower from map object.
-- `1.14.3` Spawn guard from map object.
-- `1.14.4` Spawn resource hut from map object.
-- `1.14.5` Spawn walls from collision/building data.
-- `1.14.6` Add spawned entities to ECS world.
-- `1.14.7` Log missing required objects.
-
-## 1.15 Deployment
-
-- `1.15.1` Add selected unit state.
-- `1.15.2` Add starting Goblin count.
-- `1.15.3` Add starting Ogre count.
-- `1.15.4` Add starting Imp count.
-- `1.15.5` Select Goblin on key `1`.
-- `1.15.6` Select Ogre on key `2`.
-- `1.15.7` Select Imp on key `3`.
-- `1.15.8` Convert mouse position to tile.
-- `1.15.9` Check tile is deployment tile.
-- `1.15.10` Spawn selected monster on valid click.
-- `1.15.11` Decrease selected monster count.
-- `1.15.12` Reject spawn if count is zero.
-
-## 1.16 Pathfinding
-
-- `1.16.1` Create path grid from map size.
-- `1.16.2` Mark collision tiles blocked.
-- `1.16.3` Mark wall entities blocked.
-- `1.16.4` Require Jumper.
-- `1.16.5` Create pathfinder.
-- `1.16.6` Add helper for nearest adjacent tile.
-- `1.16.7` Add helper for path request.
-- `1.16.8` Store path nodes on entity.
-- `1.16.9` Clear path when target dies.
-- `1.16.10` Rebuild grid after wall destruction.
-
-## 1.17 Targeting System
-
-- `1.17.1` Create `TargetSystem`.
-- `1.17.2` Filter monster entities.
-- `1.17.3` Skip monsters with dead targets.
-- `1.17.4` Read target priority list.
-- `1.17.5` Find alive entities by priority type.
-- `1.17.6` Pick nearest reachable target.
-- `1.17.7` Store target on monster.
-- `1.17.8` Clear target if none found.
-
-## 1.18 Movement System
-
-- `1.18.1` Create `MoveSystem`.
-- `1.18.2` Filter entities with path and movement.
-- `1.18.3` Read current path node.
-- `1.18.4` Move toward node.
-- `1.18.5` Advance node when reached.
-- `1.18.6` Stop when path ends.
-- `1.18.7` Update tile position after node change.
-
-## 1.19 Attack System
-
-- `1.19.1` Create `AttackSystem`.
-- `1.19.2` Filter entities with attack and target.
-- `1.19.3` Decrease cooldown timer.
-- `1.19.4` Check target range.
-- `1.19.5` Deal damage when timer ends.
-- `1.19.6` Reset cooldown timer.
-- `1.19.7` Add ranged placeholder effect.
-
-## 1.20 Defense System
-
-- `1.20.1` Create `DefenseSystem`.
-- `1.20.2` Make tower find nearest monster.
-- `1.20.3` Make tower attack in range.
-- `1.20.4` Make guard find nearest monster.
-- `1.20.5` Make guard path to monster.
-- `1.20.6` Make guard melee in range.
-- `1.20.7` Clear defender target when monster dies.
-
-## 1.21 Health System
-
-- `1.21.1` Create `HealthSystem`.
-- `1.21.2` Find entities with HP <= 0.
-- `1.21.3` Mark dead entities.
-- `1.21.4` Remove dead non-core entities.
-- `1.21.5` Keep core entity for win detection.
-- `1.21.6` Trigger grid rebuild after wall death.
-
-## 1.22 Win/Loss System
-
-- `1.22.1` Create `WinLossSystem`.
-- `1.22.2` Detect core HP <= 0.
-- `1.22.3` Enter ResultState on victory.
-- `1.22.4` Count alive monster entities.
-- `1.22.5` Count remaining squad units.
-- `1.22.6` Enter ResultState on defeat.
-- `1.22.7` Store result reason.
-
-## 1.23 Rendering
-
-- `1.23.1` Create `RenderSystem`.
-- `1.23.2` Sort entities by screen Y.
-- `1.23.3` Draw monster placeholders.
-- `1.23.4` Draw building placeholders.
-- `1.23.5` Draw defender placeholders.
-- `1.23.6` Draw projectile placeholders.
-- `1.23.7` Draw health bars.
-- `1.23.8` Draw selected tile highlight.
-
-## 1.24 Battle UI
-
-- `1.24.1` Create battle UI module.
-- `1.24.2` Require SUIT.
-- `1.24.3` Draw selected monster label.
-- `1.24.4` Draw Goblin count.
-- `1.24.5` Draw Ogre count.
-- `1.24.6` Draw Imp count.
-- `1.24.7` Draw core HP.
-- `1.24.8` Draw restart button.
-- `1.24.9` Draw debug toggle.
-- `1.24.10` Wire restart button.
-
-## 1.25 Debug Overlays
-
-- `1.25.1` Add debug flag.
-- `1.25.2` Toggle debug with Tab.
-- `1.25.3` Draw collision tiles.
-- `1.25.4` Draw deployment tiles.
-- `1.25.5` Draw monster paths.
-- `1.25.6` Draw target lines.
-- `1.25.7` Draw tower range.
-
-## 1.26 Result Screen
-
-- `1.26.1` Store result type.
-- `1.26.2` Store result reason.
-- `1.26.3` Draw victory title.
-- `1.26.4` Draw defeat title.
-- `1.26.5` Draw result reason.
-- `1.26.6` Add restart button.
-- `1.26.7` Restart into BattleState.
-
-## 1.27 Camera
-
-- `1.27.1` Require hump camera.
-- `1.27.2` Create battle camera.
-- `1.27.3` Attach camera before map draw.
-- `1.27.4` Detach camera before UI draw.
-- `1.27.5` Add arrow key pan.
-- `1.27.6` Add camera reset key.
-- `1.27.7` Clamp camera to map bounds.
-
-## 1.28 Feedback
-
-- `1.28.1` Require flux.
-- `1.28.2` Add floating damage number entity.
-- `1.28.3` Tween damage number upward.
-- `1.28.4` Fade damage number out.
-- `1.28.5` Add tower attack flash.
-- `1.28.6` Add core damage flash.
-- `1.28.7` Add deployment click feedback.
-
-## 1.29 Dialogue Planning
-
-- `1.29.1` Create `docs/DIALOGUE.md`.
-- `1.29.2` Describe Ink/Tinta target.
-- `1.29.3` Write intro scene outline.
-- `1.29.4` Write slime first-wakeup beat.
-- `1.29.5` Write first-village setup beat.
-- `1.29.6` Write post-victory beat.
-- `1.29.7` Define fallback Lua dialogue format.
-
-## 1.30 First Playable Acceptance
-
-- `1.30.1` Run `make check`.
-- `1.30.2` Launch `love .`.
-- `1.30.3` Confirm map renders.
-- `1.30.4` Confirm all three unit hotkeys work.
-- `1.30.5` Confirm valid deployment works.
-- `1.30.6` Confirm invalid deployment is rejected.
-- `1.30.7` Confirm Goblin targets resource hut.
-- `1.30.8` Confirm Ogre targets wall/core.
-- `1.30.9` Confirm Imp targets guard/tower.
-- `1.30.10` Confirm tower attacks monsters.
-- `1.30.11` Confirm guard chases monsters.
-- `1.30.12` Confirm core destruction wins.
-- `1.30.13` Confirm all monsters dying loses.
-- `1.30.14` Confirm restart works.
-
-## Future Epics After 1.x
-
-- `2.x` Rewards and resource economy.
-- `3.x` Merge screen.
-- `4.x` Slime evolution.
-- `5.x` Region map.
-- `6.x` Story/dialogue integration.
-- `7.x` Sprite animation.
-- `8.x` Audio and polish.
-- `9.x` Save/load.
-- `10.x` Packaging and release.
-
+# Slimebound Siege - Build Backlog
+
+The implementation backlog for the **one-commit siege deckbuilder**. Design lives in
+[GAME_DESIGN.md](GAME_DESIGN.md), [MONSTERS.md](MONSTERS.md), and [STORY.md](STORY.md);
+code shape in [ARCHITECTURE.md](ARCHITECTURE.md). Tickets reference those instead of
+restating them.
+
+## Principles
+
+- **Tiny tickets** - each is ~10 lines of code or less. If it feels bigger, split it.
+- **Walking-skeleton order** - reach a playable end-to-end thread first (M1), then thicken.
+- **Data-driven** - cards, monster abilities, town fight-back, and dialogue beats are
+  **data tables + a few generic handlers**. New content = add a data row (and a handler
+  only for a genuinely new effect *kind*). This is what keeps later content tiny.
+- **DRY** - point at the design docs for content; don't restate it here.
+- IDs are `milestone.epic.ticket` (e.g. `2.3.1` = milestone 2, epic 3, ticket 1).
+- Near milestones are fully ticketed; far milestones (M5-M7) are compact epics with a
+  **Done when**, detailed only when they come up.
+
+---
+
+## M0 - Foundations
+
+**Goal:** the project boots into an empty state machine. **Done when:** `love .` opens a
+Menu state and `make check` / `build.ps1 check` passes.
+
+### 0.1 Folders & libraries
+- `0.1.1` Create `src/core/`, `src/data/`, `src/combat/`, `src/states/`, `src/ui/`, `tests/`.
+- `0.1.2` Create `assets/cards/`, `assets/audio/`; add `.gitkeep` to empty folders.
+- `0.1.3` Add `lib/README.md` with vendoring + fallback rules.
+- `0.1.4` Vendor `hump` (gamestate, timer, camera) and list its source URL.
+- `0.1.5` Vendor `flux`, `lume`, `SUIT` and list their source URLs.
+- `0.1.6` Add a one-`require` smoke file per library (hump/flux/lume/SUIT).
+
+### 0.2 State machine
+- `0.2.1` Require hump gamestate in `game.lua`.
+- `0.2.2` Create empty `MenuState`, `CombatState`, `ResultState`.
+- `0.2.3` Switch `main.lua` from the placeholder scene to `MenuState`.
+- `0.2.4` `MenuState` -> start a siege (enter `CombatState`).
+- `0.2.5` Add `enter/update/draw` stubs to each state.
+- `0.2.6` Add `Result -> Combat` restart transition.
+
+---
+
+## M1 - Walking Skeleton
+
+**Goal:** the steel thread - win or lose a one-lane siege on screen. No sculpt, elements,
+or abilities yet. **Done when:** draw 7 -> put a combo in one lane -> commit -> Core
+falls = victory screen; out of options = defeat; restart works; resolver tests pass.
+
+### 1.1 Cards & deck (minimal)
+- `1.1.1` `src/data/families.lua` (suit -> family) and rank-value table (2-10, J=11, Q=12, K=13, A=14).
+- `1.1.2` `src/data/cards.lua` card shape `{suit, rank, element, monsterType}`.
+- `1.1.3` `src/core/rng.lua` (seedable).
+- `1.1.4` `src/core/deck.lua`: build from a card list, shuffle (seeded), draw to hand size 7.
+- `1.1.5` 52-card vocabulary generator (tests/debug) + a tiny fixed test deck.
+
+### 1.2 Pure resolver (start the core)
+- `1.2.1` `src/combat/resolver.lua` (no Love2D calls).
+- `1.2.2` `evaluateCombo(cards)` - high card, pair, three of a kind.
+- `1.2.3` Add straight, flush, full house, four of a kind, straight flush.
+- `1.2.4` `rankSum(cards)`; `resolveLane(cards, structure)` -> `{attack, destroyed}` (type-mult stubbed to 1).
+- `1.2.5` `resolveCommit(lanes, town)` -> per-lane results; town conquered if Core lane destroyed it.
+
+### 1.3 Resolver tests
+- `1.3.1` `tests/resolver_spec.lua` (plain Lua asserts) + wire into `make check` / `build.ps1 check`.
+- `1.3.2` Test each combo tier's mult and `rankSum`.
+- `1.3.3` Test "1 low card clears a DEF-3 wall" and an overkill case.
+
+### 1.4 Skeleton combat + screens
+- `1.4.1` `src/data/towns.lua` with one hardcoded town (a Wall + a Core).
+- `1.4.2` `CombatState`: draw 7, render hand + structures (placeholder rects).
+- `1.4.3` Select cards into one lane; commit calls `resolveCommit`.
+- `1.4.4` Core destroyed -> `ResultState` victory; no win + no cards -> defeat.
+- `1.4.5` `ResultState` shows victory/defeat + restart button.
+
+---
+
+## M2 - The One-Commit Siege (depth)
+
+**Goal:** the full combat from [GAME_DESIGN.md](GAME_DESIGN.md) "Siege Combat". **Done
+when:** scout -> draw 7 -> 2 sculpt turns (exchange <=3) under fight-back -> assign lanes to
+independent structures -> commit with elements -> Core = conquer / shortfall = expedition-HP
+damage or retreat.
+
+### 2.1 Structures, towns, elements
+- `2.1.1` `src/data/elements.lua` (Fire/Acid/Physical damage; Frost/Poison utility).
+- `2.1.2` `src/data/structures.lua` `{name, def, material, element, rule}` + Wood Wall, Iron Gate, Stone Tower, Town Core.
+- `2.1.3` Expand `towns.lua` to a 3-4 **independent**-structure Frontier town.
+- `2.1.4` `src/data/matchups.lua` - the 5x5 element/material table (see GAME_DESIGN).
+- `2.1.5` `typeMultiplier(element, material)` in the resolver (replaces the M1 stub).
+- `2.1.6` Frost effect: `frostReduction` lowers target DEF before compare.
+- `2.1.7` Poison effect: ignore the x0.5 resist case.
+
+### 2.2 Sculpt + commit loop
+- `2.2.1` `src/combat/siege.lua` - town instance + per-structure `destroyed` flags.
+- `2.2.2` Track sculpt turns left (2) and exchanges remaining (3).
+- `2.2.3` Exchange: toss selected cards, redraw, decrement budget; reshuffle discard when draw empties.
+- `2.2.4` Lane assignment: cards -> structureId (any lane -> any structure).
+- `2.2.5` Commit applies all lanes via `resolveCommit`.
+- `2.2.6` Bonus loot (gold/essence) for destroyed non-core structures.
+
+### 2.3 Expedition HP, fight-back, outcome
+- `2.3.1` Track expedition HP (start 30) on the run/slime.
+- `2.3.2` Fight-back step fires each sculpt turn (one rule per town for now).
+- `2.3.3` Rule: reinforce a structure's DEF.
+- `2.3.4` Rule: lock a suit for the commit.
+- `2.3.5` Rule: wound a card in hand (reduce its rank).
+- `2.3.6` Rule: chip expedition HP.
+- `2.3.7` Outcome: Core destroyed -> victory; Core survives -> expedition-HP damage; HP 0 or keep unbeaten -> retreat.
+
+### 2.4 Combat UI
+- `2.4.1` `src/ui/card.lua` - card face (rank, suit glyph, element pip).
+- `2.4.2` Draw the 7-card hand + selection state.
+- `2.4.3` `src/ui/town_view.lua` - independent structure cards as lane targets.
+- `2.4.4` Highlight the lane a selected card is assigned to.
+- `2.4.5` Live lane breakdown `rankSum x combo x type` (+/- effects).
+- `2.4.6` Sculpt turns left + exchanges remaining; expedition-HP bar.
+- `2.4.7` Assign-lane / exchange / commit input handling (see ARCHITECTURE controls).
+
+### 2.5 Starting deck (explicit)
+- `2.5.1` `src/data/starter_deck.lua` - exactly 16 cards: 4 Goblins (3/5/6/8), 4 Brutes
+  (4/6/7/9), 4 Slimes (2/4/6/8), 3 Casters (3/5/7), 1 Slime Core (Ace); elements spread
+  across Fire/Acid/Physical/Frost/Poison. (Tuning starting point.)
+
+---
+
+## M3 - Monster Abilities (data-driven)
+
+**Goal:** every monster type in [MONSTERS.md](MONSTERS.md) has its commit-time ability.
+**Done when:** abilities resolve as lane modifiers and the Imp can split into two lanes.
+
+### 3.1 Effect framework
+- `3.1.1` Define an `effects` table: `kind -> handler(ctx)` applied during `resolveLane` / `resolveCommit`.
+- `3.1.2` Attach an `ability` (effect-kind + params) to each monster type in `monsters.lua`.
+- `3.1.3` Handler hooks: pre-lane (DEF/rank tweaks), lane-mult, post-destroy (heal/loot), commit-wide.
+
+### 3.2 Family abilities (one tiny ticket each, per MONSTERS.md)
+- `3.2.1`-`3.2.6` Clubs: Runt, Sneak, Raider, Pack-leader, Goblin Boss, Goblin Khan.
+- `3.2.7`-`3.2.12` Spades: Orcling, Orc Grunt, Ogre, Troll, Berserker, War Brute.
+- `3.2.13`-`3.2.18` Hearts: Slime, Slime Spitter, Hex Slime, Greater Slime, Slime Familiar, Slime Core (wild).
+- `3.2.19`-`3.2.24` Diamonds: Imp (multi-lane), Acolyte, Shaman, Dragonkin, Frost Mage, Wyvern.
+- `3.2.25` Merged-monster abilities (Hobgoblin, Stone Ogre, Greater Slime, Hexling, Ember Brute, Hex Slime).
+- `3.2.26` Tests: one assert per ability kind.
+
+---
+
+## M4 - The Expedition (the run)
+
+**Goal:** a full single-town expedition - node map, shop, merge, companions, cores,
+rewards. **Done when:** pick a core -> traverse ~8-12 nodes -> recruit/merge along the way
+-> beat the keep = town conquered; retreat ends the run.
+
+### 4.1 Expedition + node map
+- `4.1.1` `src/core/expedition.lua` (deck, horde, gold, node, seed).
+- `4.1.2` `ExpeditionState` renders + navigates a branching node map (~8-12 nodes).
+- `4.1.3` Node types: Defense, Keep(boss), Recruit, Merge, Event, Rest, Training, Alchemy.
+- `4.1.4` Enter `CombatState` from Defense/Keep nodes; return outcome.
+- `4.1.5` Keep won -> town conquered (report out); HP 0 / keep lost -> retreat ends expedition.
+
+### 4.2 Slime cores
+- `4.2.1` `src/data/cores.lua` (Commander/Absorber/Alchemist/Warden).
+- `4.2.2` Commander effect: **+1 exchange** (4 total). (Hand size stays 7.)
+- `4.2.3` Core selection in `MenuState`; store on the run.
+
+### 4.3 Shop, merge, rewards, companions
+- `4.3.1` `ShopState`: offer cards for gold; add a bought card to the deck.
+- `4.3.2` Reward amounts: keep win +50 gold/+10 essence; non-core +10 gold; card ~25g, companion ~60g.
+- `4.3.3` `src/combat/merge.lua` recipe table + Goblin+Goblin=Hobgoblin and one hybrid (Slime+Caster=Hex Slime).
+- `4.3.4` Merge node: consume fused cards, add the result.
+- `4.3.5` Horde: 3 slots; recruit the first named companion (loyal goblin) at a camp.
+- `4.3.6` Apply companion passives as commit-wide effect-handlers (reuse 3.1 framework).
+- `4.3.7` Rest node (heal expedition HP); Training node (raise a combo mult for the run); Alchemy node (re-type/bump a card).
+
+### 4.4 First-playable acceptance
+- `4.4.1` Lanes target any structure; Imp splits; town fights back; Core wins; shortfall retreats.
+- `4.4.2` A full expedition completes (cores -> nodes -> shop/merge -> keep), restart works, `check` + tests pass.
+
+---
+
+## M5 - The Campaign (overworld + meta + save)
+
+**Goal:** the persistent layer that wraps expeditions. **Done when:** conquering towns
+sticks on a kingdom map, the slime/meta persist, and a campaign saves/loads.
+
+- `5.1` `OverworldState`: 5 kingdoms x several towns; pick a town -> launch an expedition.
+- `5.2` Conquest persistence + HQ on conquered land; kingdom unlock gating by difficulty.
+- `5.3` Slime-core leveling via story milestones; carries between expeditions.
+- `5.4` Meta-unlocks: draftable card/companion pool, starting kits, boons.
+- `5.5` `src/core/save.lua` - serialize/deserialize the `Campaign` table (lume.serialize); save slot(s).
+
+---
+
+## M6 - The Story
+
+**Goal:** the narrative from [STORY.md](STORY.md)/[DIALOGUE.md](DIALOGUE.md) in-game via the
+diegetic broken-UI narrator. **Done when:** Act I plays through dialogue + Event nodes, allies
+recruit, companions can fall, and endings branch.
+
+- `6.1` Dialogue engine: load Lua-table beats (`src/data/dialogue/`), render box + choices, set run/campaign flags. Overlay via the hump gamestate **stack** (on top of combat/overworld).
+- `6.2` Broken-UI narrator styling (system/slime/character voices; glitch + patch-note flourishes).
+- `6.3` Act I beats (Commute, Wakeup, First Siege, First Defector, Rules Reveal) as data files.
+- `6.4` Event nodes run beats + apply choice effects; human-defector recruitment + ally effect.
+- `6.5` Companion arcs + **permadeath scene variants** (alive/fallen lines keyed off flags); merge-sacrifice + special-boss loss.
+- `6.6` Acts II-III beats (Knight-Commander, Inquisitor, Frost Warden, Crown Engine/Architect).
+- `6.7` Three endings (Conqueror / Coexistence / Break-the-Engine) gated on ally + conquest flags.
+- `6.8` Migrate branching beats to Ink/Tinta where it pays off (keep Lua fallback).
+
+---
+
+## M7 - Content & Polish
+
+**Goal:** ship-quality breadth. **Done when:** all kingdoms are populated, balanced, and the
+game looks/sounds/packages well.
+
+- `7.1` Full town/kingdom roster + per-kingdom DEF scaling (Frontier x1 -> Crown x3) and fight-back stacks.
+- `7.2` Full element/ability/economy balance pass (data-driven tuning).
+- `7.3` Card art + `anim8` animation (card play, merges, kingdom backdrops).
+- `7.4` Audio: sfx (commit, structure break, fight-back), per-kingdom music, narrator stings.
+- `7.5` Accessibility pass (colorblind-safe suits/elements, text scale, input remap).
+- `7.6` Packaging/release pipeline (`make package` / `build.ps1 package`) for Windows + macOS.
+
+---
+
+## Coverage map (every system/story has a home)
+
+- **Combat core**: M1-M2 - resolver, sculpt, lanes, elements, fight-back, HP, UI.
+- **Cards/deck**: M1 (deck/draw) + M2.5 (starter) + M4.3 (shop/merge) + M5.4 (meta pool).
+- **Monster abilities**: M3 (all families + merged + Imp split).
+- **Run loop**: M4 - nodes, cores, shop, merge, companions, rewards, Rest/Training/Alchemy.
+- **Campaign/meta/save**: M5.
+- **Story** (narrator, acts, companions, defectors, endings, dialogue, Ink): M6.
+- **Art/audio/balance/accessibility/packaging**: M7.
