@@ -27,21 +27,23 @@ restating them.
 **Goal:** the project boots into an empty state machine. **Done when:** `love .` opens a
 Menu state and `make check` / `build.ps1 check` passes.
 
+> **Status: ✅ Complete.**
+
 ### 0.1 Folders & libraries
-- `0.1.1` Create `src/core/`, `src/data/`, `src/combat/`, `src/states/`, `src/ui/`, `tests/`.
-- `0.1.2` Create `assets/cards/`, `assets/audio/`; add `.gitkeep` to empty folders.
-- `0.1.3` Add `lib/README.md` with vendoring + fallback rules.
-- `0.1.4` Vendor `hump` (gamestate, timer, camera) and list its source URL.
-- `0.1.5` Vendor `flux`, `lume`, `SUIT` and list their source URLs.
-- `0.1.6` Add a one-`require` smoke file per library (hump/flux/lume/SUIT).
+- [x] `0.1.1` Create `src/core/`, `src/data/`, `src/combat/`, `src/states/`, `src/ui/`, `tests/`.
+- [x] `0.1.2` Create `assets/cards/`, `assets/audio/`; add `.gitkeep` to empty folders.
+- [x] `0.1.3` Add `lib/README.md` with vendoring + fallback rules.
+- [x] `0.1.4` Vendor `hump` (gamestate, timer, camera) and list its source URL.
+- [x] `0.1.5` Vendor `flux`, `lume`, `SUIT` and list their source URLs.
+- [x] `0.1.6` Add a one-`require` smoke file per library (hump/flux/lume/SUIT).
 
 ### 0.2 State machine
-- `0.2.1` Require hump gamestate in `game.lua`.
-- `0.2.2` Create empty `MenuState`, `CombatState`, `ResultState`.
-- `0.2.3` Switch `main.lua` from the placeholder scene to `MenuState`.
-- `0.2.4` `MenuState` -> start a siege (enter `CombatState`).
-- `0.2.5` Add `enter/update/draw` stubs to each state.
-- `0.2.6` Add `Result -> Combat` restart transition.
+- [x] `0.2.1` Require hump gamestate in `game.lua`.
+- [x] `0.2.2` Create empty `MenuState`, `CombatState`, `ResultState`.
+- [x] `0.2.3` Switch `main.lua` from the placeholder scene to `MenuState`.
+- [x] `0.2.4` `MenuState` -> start a siege (enter `CombatState`).
+- [x] `0.2.5` Add `enter/update/draw` stubs to each state.
+- [x] `0.2.6` Add `Result -> Combat` restart transition.
 
 ---
 
@@ -51,31 +53,33 @@ Menu state and `make check` / `build.ps1 check` passes.
 or abilities yet. **Done when:** draw 7 -> put a combo in one lane -> commit -> Core
 falls = victory screen; out of options = defeat; restart works; resolver tests pass.
 
+> **Status: ✅ Complete.**
+
 ### 1.1 Cards & deck (minimal)
-- `1.1.1` `src/data/families.lua` (suit -> family) and rank-value table (2-10, J=11, Q=12, K=13, A=14).
-- `1.1.2` `src/data/cards.lua` card shape `{suit, rank, element, monsterType}`.
-- `1.1.3` `src/core/rng.lua` (seedable).
-- `1.1.4` `src/core/deck.lua`: build from a card list, shuffle (seeded), draw to hand size 7.
-- `1.1.5` 52-card vocabulary generator (tests/debug) + a tiny fixed test deck.
+- [x] `1.1.1` `src/data/families.lua` (suit -> family) and rank-value table (2-10, J=11, Q=12, K=13, A=14).
+- [x] `1.1.2` `src/data/cards.lua` card shape `{suit, rank, element, monsterType}`.
+- [x] `1.1.3` `src/core/rng.lua` (seedable).
+- [x] `1.1.4` `src/core/deck.lua`: build from a card list, shuffle (seeded), draw to hand size 7.
+- [x] `1.1.5` 52-card vocabulary generator (tests/debug) + a tiny fixed test deck.
 
 ### 1.2 Pure resolver (start the core)
-- `1.2.1` `src/combat/resolver.lua` (no Love2D calls).
-- `1.2.2` `evaluateCombo(cards)` - high card, pair, three of a kind.
-- `1.2.3` Add straight, flush, full house, four of a kind, straight flush.
-- `1.2.4` `rankSum(cards)`; `resolveLane(cards, structure)` -> `{attack, destroyed}` (type-mult stubbed to 1).
-- `1.2.5` `resolveCommit(lanes, town)` -> per-lane results; town conquered if Core lane destroyed it.
+- [x] `1.2.1` `src/combat/resolver.lua` (no Love2D calls).
+- [x] `1.2.2` `evaluateCombo(cards)` - high card, pair, three of a kind.
+- [x] `1.2.3` Add straight, flush, full house, four of a kind, straight flush.
+- [x] `1.2.4` `rankSum(cards)`; `resolveLane(cards, structure)` -> `{attack, destroyed}` (type-mult stubbed to 1).
+- [x] `1.2.5` `resolveCommit(lanes, town)` -> per-lane results; town conquered if Core lane destroyed it.
 
 ### 1.3 Resolver tests
-- `1.3.1` `tests/resolver_spec.lua` (plain Lua asserts) + wire into `make check` / `build.ps1 check`.
-- `1.3.2` Test each combo tier's mult and `rankSum`.
-- `1.3.3` Test "1 low card clears a DEF-3 wall" and an overkill case.
+- [x] `1.3.1` `tests/resolver_spec.lua` (plain Lua asserts) + wire into `make check` / `build.ps1 check`.
+- [x] `1.3.2` Test each combo tier's mult and `rankSum`.
+- [x] `1.3.3` Test "1 low card clears a DEF-3 wall" and an overkill case.
 
 ### 1.4 Skeleton combat + screens
-- `1.4.1` `src/data/towns.lua` with one hardcoded town (a Wall + a Core).
-- `1.4.2` `CombatState`: draw 7, render hand + structures (placeholder rects).
-- `1.4.3` Select cards into one lane; commit calls `resolveCommit`.
-- `1.4.4` Core destroyed -> `ResultState` victory; no win + no cards -> defeat.
-- `1.4.5` `ResultState` shows victory/defeat + restart button.
+- [x] `1.4.1` `src/data/towns.lua` with one hardcoded town (a Wall + a Core).
+- [x] `1.4.2` `CombatState`: draw 7, render hand + structures (placeholder rects).
+- [x] `1.4.3` Select cards into one lane; commit calls `resolveCommit`.
+- [x] `1.4.4` Core destroyed -> `ResultState` victory; no win + no cards -> defeat.
+- [x] `1.4.5` `ResultState` shows victory/defeat + restart button.
 
 ---
 
@@ -86,55 +90,60 @@ when:** scout -> draw 7 -> 2 sculpt turns (exchange <=3) under fight-back -> ass
 independent structures -> commit with elements -> Core = conquer / shortfall = expedition-HP
 damage or retreat.
 
+> **Status: ✅ Complete** — except `2.6.7` (custom `.ttf` font asset still to be added;
+> running on the default font via the fallback loader).
+
 ### 2.1 Structures, towns, elements
-- `2.1.1` `src/data/elements.lua` (Fire/Acid/Physical damage; Frost/Poison utility).
-- `2.1.2` `src/data/structures.lua` `{name, def, material, element, rule}` + Wood Wall, Iron Gate, Stone Tower, Town Core.
-- `2.1.3` Expand `towns.lua` to a 3-4 **independent**-structure Frontier town.
-- `2.1.4` `src/data/matchups.lua` - the 5x5 element/material table (see GAME_DESIGN).
-- `2.1.5` `typeMultiplier(element, material)` in the resolver (replaces the M1 stub).
-- `2.1.6` Frost effect: `frostReduction` lowers target DEF before compare.
-- `2.1.7` Poison effect: ignore the x0.5 resist case.
+- [x] `2.1.1` `src/data/elements.lua` (Fire/Acid/Physical damage; Frost/Poison utility).
+- [x] `2.1.2` `src/data/structures.lua` `{name, def, material, element, rule}` + Wood Wall, Iron Gate, Stone Tower, Town Core.
+- [x] `2.1.3` Expand `towns.lua` to a 3-4 **independent**-structure Frontier town.
+- [x] `2.1.4` `src/data/matchups.lua` - the 5x5 element/material table (see GAME_DESIGN).
+- [x] `2.1.5` `typeMultiplier(element, material)` in the resolver (replaces the M1 stub).
+- [x] `2.1.6` Frost effect: `frostReduction` lowers target DEF before compare.
+- [x] `2.1.7` Poison effect: ignore the x0.5 resist case.
 
 ### 2.2 Sculpt + commit loop
-- `2.2.1` `src/combat/siege.lua` - town instance + per-structure `destroyed` flags.
-- `2.2.2` Track sculpt turns left (2) and exchanges remaining (3).
-- `2.2.3` Exchange: toss selected cards, redraw, decrement budget; reshuffle discard when draw empties.
-- `2.2.4` Lane assignment: cards -> structureId (any lane -> any structure).
-- `2.2.5` Commit applies all lanes via `resolveCommit`.
-- `2.2.6` Bonus loot (gold/essence) for destroyed non-core structures.
+- [x] `2.2.1` `src/combat/siege.lua` - town instance + per-structure `destroyed` flags.
+- [x] `2.2.2` Track sculpt turns left (2) and exchanges remaining (3).
+- [x] `2.2.3` Exchange: toss selected cards, redraw, decrement budget; reshuffle discard when draw empties.
+- [x] `2.2.4` Lane assignment: cards -> structureId (any lane -> any structure).
+- [x] `2.2.5` Commit applies all lanes via `resolveCommit`.
+- [x] `2.2.6` Bonus loot (gold/essence) for destroyed non-core structures.
 
 ### 2.3 Expedition HP, fight-back, outcome
-- `2.3.1` Track expedition HP (start 30) on the run/slime.
-- `2.3.2` Fight-back step fires each sculpt turn (one rule per town for now).
-- `2.3.3` Rule: reinforce a structure's DEF.
-- `2.3.4` Rule: lock a suit for the commit.
-- `2.3.5` Rule: wound a card in hand (reduce its rank).
-- `2.3.6` Rule: chip expedition HP.
-- `2.3.7` Outcome: Core destroyed -> victory; Core survives -> expedition-HP damage; HP 0 or keep unbeaten -> retreat.
+- [x] `2.3.1` Track expedition HP (start 30) on the run/slime.
+- [x] `2.3.2` Fight-back step fires each sculpt turn (one rule per town for now).
+- [x] `2.3.3` Rule: reinforce a structure's DEF.
+- [x] `2.3.4` Rule: lock a suit for the commit.
+- [x] `2.3.5` Rule: wound a card in hand (reduce its rank).
+- [x] `2.3.6` Rule: chip expedition HP.
+- [x] `2.3.7` Outcome: Core destroyed -> victory; Core survives -> expedition-HP damage; HP 0 or keep unbeaten -> retreat.
 
 ### 2.4 Combat UI
-- `2.4.1` `src/ui/card.lua` - card face (rank, suit glyph, element pip).
-- `2.4.2` Draw the 7-card hand + selection state.
-- `2.4.3` `src/ui/town_view.lua` - independent structure cards as lane targets.
-- `2.4.4` Highlight the lane a selected card is assigned to.
-- `2.4.5` Live lane breakdown `rankSum x combo x type` (+/- effects).
-- `2.4.6` Sculpt turns left + exchanges remaining; expedition-HP bar.
-- `2.4.7` Assign-lane / exchange / commit input handling (see ARCHITECTURE controls).
+- [x] `2.4.1` `src/ui/card.lua` - card face (rank, suit glyph, element pip).
+- [x] `2.4.2` Draw the 7-card hand + selection state.
+- [x] `2.4.3` `src/ui/town_view.lua` - independent structure cards as lane targets.
+- [x] `2.4.4` Highlight the lane a selected card is assigned to.
+- [x] `2.4.5` Live lane breakdown `rankSum x combo x type` (+/- effects).
+- [x] `2.4.6` Sculpt turns left + exchanges remaining; expedition-HP bar.
+- [x] `2.4.7` Assign-lane / exchange / commit input handling (see ARCHITECTURE controls).
 
 ### 2.5 Starting deck (explicit)
-- `2.5.1` `src/data/starter_deck.lua` - exactly 16 cards: 4 Goblins (3/5/6/8), 4 Brutes
+- [x] `2.5.1` `src/data/starter_deck.lua` - exactly 16 cards: 4 Goblins (3/5/6/8), 4 Brutes
   (4/6/7/9), 4 Slimes (2/4/6/8), 3 Casters (3/5/7), 1 Slime Core (Ace); elements spread
   across Fire/Acid/Physical/Frost/Poison. (Tuning starting point.)
 
 ### 2.6 Visual theme (minimal, so placeholders read)
-- `2.6.1` `src/ui/theme.lua` - one palette table (UI chrome + suits + elements + materials).
-- `2.6.2` UI chrome: bg `#15151e`, panel `#2a2a3a`, text `#e8e8ec`, muted `#9a9aa8`, accent `#f0c040`, success `#6aa84f`, danger `#e2554a`.
-- `2.6.3` Suit colors: Clubs `#6aa84f`, Spades `#7f8a9b`, Hearts `#d6608f`, Diamonds `#b06fd6`.
-- `2.6.4` Element colors: Fire `#e2554a`, Acid `#b6d94c`, Physical `#d8d2c2`, Frost `#5fc7e8`, Poison `#7d4b9c`.
-- `2.6.5` Material colors: Wood `#8a5a2b`, Iron `#6d7079`, Stone `#9a9488`, Ice `#b8e0ef`, Holy `#f2e6b3`.
-- `2.6.6` `theme.hex(name)` helper -> `{r,g,b}` (0-1) for `love.graphics.setColor`.
-- `2.6.7` Load a pixel/monospace `.ttf` from `assets/`; set as the default font.
-- `2.6.8` Recolor the card faces, structure cards, and HP bar from `theme` (retire bare rects).
+- [x] `2.6.1` `src/ui/theme.lua` - one palette table (UI chrome + suits + elements + materials).
+- [x] `2.6.2` UI chrome: bg `#15151e`, panel `#2a2a3a`, text `#e8e8ec`, muted `#9a9aa8`, accent `#f0c040`, success `#6aa84f`, danger `#e2554a`.
+- [x] `2.6.3` Suit colors: Clubs `#6aa84f`, Spades `#7f8a9b`, Hearts `#d6608f`, Diamonds `#b06fd6`.
+- [x] `2.6.4` Element colors: Fire `#e2554a`, Acid `#b6d94c`, Physical `#d8d2c2`, Frost `#5fc7e8`, Poison `#7d4b9c`.
+- [x] `2.6.5` Material colors: Wood `#8a5a2b`, Iron `#6d7079`, Stone `#9a9488`, Ice `#b8e0ef`, Holy `#f2e6b3`.
+- [x] `2.6.6` `theme.hex(name)` helper -> `{r,g,b}` (0-1) for `love.graphics.setColor`.
+- [ ] `2.6.7` Load a pixel/monospace `.ttf` from `assets/`; set as the default font.
+  _**TODO (deferred):** keep the LÖVE default font for now. Loader + default-font fallback in
+  `theme.applyFont` is already in place — drop a `.ttf` into `assets/` later to finish this._
+- [x] `2.6.8` Recolor the card faces, structure cards, and HP bar from `theme` (retire bare rects).
 
 ---
 
