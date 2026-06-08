@@ -10,6 +10,9 @@ run:
 
 check:
 	@find . -name '*.lua' -not -path './build/*' -print0 | xargs -0 -n1 luac -p
+	@if command -v luajit >/dev/null 2>&1; then luajit tests/resolver_spec.lua; \
+	elif command -v lua >/dev/null 2>&1; then lua tests/resolver_spec.lua; \
+	else echo "no lua/luajit on PATH; resolver spec not run"; fi
 
 package: clean
 	@mkdir -p $(BUILD_DIR)
