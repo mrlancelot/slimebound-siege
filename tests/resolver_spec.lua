@@ -69,5 +69,25 @@ local win = R.resolveCommit({ [2] = { card("Spades", "K"), card("Hearts", "K") }
 check(win.conquered == true and win.results[1].destroyed == true, "commit: core falls -> conquered")
 check(R.resolveCommit({ [2] = { card("Clubs", "2") } }, town).conquered == false, "commit: core stands -> not conquered")
 
+-- 2.1.5-2.1.7 - element matchups, Frost DEF reduction, Poison ignore-resist.
+local function el(suit, rank, element)
+	return Cards.new(suit, rank, element)
+end
+check(R.typeMultiplier("Fire", "Wood") == 2, "Fire vs Wood = x2")
+check(R.typeMultiplier("Acid", "Iron") == 2, "Acid vs Iron = x2")
+check(R.typeMultiplier("Physical", "Holy") == 2, "Physical vs Holy = x2")
+check(R.typeMultiplier("Physical", "Iron") == 0.5, "Physical vs Iron = x0.5")
+check(R.typeMultiplier("Fire", "Granite") == 1, "unknown material -> neutral")
+-- Fire 5 vs Wood DEF 8: 5 * 1 * 2 = 10 >= 8.
+check(R.resolveLane({ el("Clubs", "5", "Fire") }, { def = 8, material = "Wood" }).attack == 10, "Fire x2 attack")
+-- Frost lowers effective DEF: two Frost cards remove 4 DEF (frostDefPerCard 2).
+local frosted = R.resolveLane({ el("Hearts", "6", "Frost"), el("Spades", "6", "Frost") }, { def = 14, material = "Iron" })
+check(frosted.def == 10, "Frost reduces effective DEF 14 -> 10")
+-- Poison ignores the x0.5 resist (Physical vs Iron) -> treated as x1.
+local poisoned = R.resolveLane({ el("Spades", "8", "Physical"), el("Clubs", "4", "Poison") }, { def = 5, material = "Iron" })
+check(poisoned.type == 1, "Poison ignores the x0.5 resist case")
+-- dominantElement: majority wins, ties resolve by priority (Fire before Frost).
+check(R.dominantElement({ el("Clubs", "2", "Fire"), el("Clubs", "3", "Frost") }) == "Fire", "dominant tie -> priority")
+
 print(failures == 0 and "PASS: all resolver specs" or ("FAILED: " .. failures .. " spec(s)"))
 os.exit(failures > 0 and 1 or 0)

@@ -38,4 +38,27 @@ function M.draw(deck, n)
 	return deck.hand
 end
 
+-- Put a card onto the discard pile (used when exchanging/tossing during sculpt).
+function M.discard(deck, card)
+	deck.discard[#deck.discard + 1] = card
+end
+
+-- Move the discard pile back into the draw pile and shuffle it (seeded).
+function M.reshuffle(deck, seed)
+	for i = #deck.discard, 1, -1 do
+		deck.draw[#deck.draw + 1] = deck.discard[i]
+		deck.discard[i] = nil
+	end
+	return M.shuffle(deck, seed)
+end
+
+-- Draw a single card, reshuffling the discard back in if the draw pile is empty.
+-- Returns the card (or nil if both piles are exhausted).
+function M.drawOne(deck, seed)
+	if #deck.draw == 0 then
+		M.reshuffle(deck, seed)
+	end
+	return table.remove(deck.draw)
+end
+
 return M

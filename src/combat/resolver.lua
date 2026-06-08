@@ -1,6 +1,9 @@
 -- The pure siege resolver: scores poker-combo lanes against structures.
 -- PURE by contract: no love.* and no globals, so it unit-tests under plain lua.
 -- attack = rankSum x combo-mult x type-mult; a structure falls when attack >= def.
+local Elements = require("src.data.elements")
+local Matchups = require("src.data.matchups")
+
 local M = {}
 
 -- Combo kind -> attack multiplier (see ARCHITECTURE combo tiers).
@@ -85,17 +88,66 @@ function M.evaluateCombo(cards)
 	return { kind = kind, mult = MULTS[kind], rankSum = M.rankSum(cards) }
 end
 
--- Score one lane vs one structure. type-mult is stubbed to 1 here; the real
--- element/material multiplier (and Frost/Poison) arrive in M2.1.
+-- The lane's matchup element: the most common element, ties broken by priority.
+function M.dominantElement(cards)
+	local counts = {}
+	for _, card in ipairs(cards) do
+		counts[card.element] = (counts[card.element] or 0) + 1
+	end
+	local best
+	for _, element in ipairs(Elements.priority) do
+		if counts[element] and (not best or counts[element] > counts[best]) then
+			best = element
+		end
+	end
+	return best
+end
+
+-- Element x material multiplier; 1.0 (neutral) when either side is unlisted.
+function M.typeMultiplier(element, material)
+	local row = Matchups[element]
+	local mult = row and row[material]
+	return mult or 1
+end
+
+-- DEF removed by Frost cards in the lane (lowers the target before the compare).
+function M.frostReduction(cards)
+	local frost = 0
+	for _, card in ipairs(cards) do
+		if card.element == "Frost" then
+			frost = frost + 1
+		end
+	end
+	return frost * Elements.frostDefPerCard
+end
+
+local function hasPoison(cards)
+	for _, card in ipairs(cards) do
+		if card.element == "Poison" then
+			return true
+		end
+	end
+	return false
+end
+
+-- Score one lane vs one structure, applying the element matchup, Frost DEF
+-- reduction, and Poison's ignore-resist rule.
 function M.resolveLane(cards, structure)
 	local combo = M.evaluateCombo(cards)
-	local typeMult = 1
+	local element = M.dominantElement(cards)
+	local typeMult = M.typeMultiplier(element, structure.material)
+	if typeMult == 0.5 and hasPoison(cards) then
+		typeMult = 1 -- Poison ignores the resist case.
+	end
+	local def = structure.def - M.frostReduction(cards)
 	local attack = combo.rankSum * combo.mult * typeMult
 	return {
 		attack = attack,
-		destroyed = attack >= structure.def,
+		destroyed = attack >= def,
 		combo = combo,
 		type = typeMult,
+		element = element,
+		def = def,
 	}
 end
 

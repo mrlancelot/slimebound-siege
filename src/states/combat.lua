@@ -1,146 +1,194 @@
 local Gamestate = require("lib.hump.gamestate")
 local Deck = require("src.core.deck")
+local Siege = require("src.combat.siege")
 local Towns = require("src.data.towns")
-local Resolver = require("src.combat.resolver")
--- Placeholder M1 deck source: the 52-card vocabulary generator. Replaced by the
--- starter deck (M2.5) and the expedition deck (M4).
-local Vocab = require("tests.decks")
+local StarterDeck = require("src.data.starter_deck")
+local Theme = require("src.ui.theme")
+local CardUI = require("src.ui.card")
+local TownView = require("src.ui.town_view")
 
 local M = {}
 
-local function cardRect(i)
-	local w, h, gap = 120, 160, 12
-	return 24 + (i - 1) * (w + gap), 360, w, h
+local function structRect(i)
+	local w, h, gap = 210, 90, 12
+	return 24 + (i - 1) * (w + gap), 70, w, h
 end
 
-local function structRect(i)
-	local w, h, gap = 360, 56, 12
-	return 24, 70 + (i - 1) * (h + gap), w, h
+local function cardRect(i)
+	local w, h, gap = 120, 150, 12
+	return 24 + (i - 1) * (w + gap), 370, w, h
 end
 
 local function hit(mx, my, x, y, w, h)
 	return mx >= x and mx <= x + w and my >= y and my <= y + h
 end
 
-local function selectedCards(self)
+local function selectedList(self)
 	local cards = {}
-	for i, card in ipairs(self.hand) do
-		if self.selected[i] then
+	for _, card in ipairs(self.siege.hand) do
+		if self.selected[card] then
 			cards[#cards + 1] = card
 		end
 	end
 	return cards
 end
 
-local function commit(self)
-	local target = self.target
-	local cards = selectedCards(self)
-	if not target or #cards == 0 then
-		self.message = "Pick at least one card AND a structure, then press Enter."
-		return
-	end
-
-	local outcome = Resolver.resolveCommit({ [target] = cards }, self.town)
-	for id, result in pairs(outcome.results) do
-		if result.destroyed then
-			self.town.structures[id].destroyed = true
-		end
-	end
-
-	local kept = {}
-	for i, card in ipairs(self.hand) do
-		if not self.selected[i] then
-			kept[#kept + 1] = card
-		end
-	end
-	self.hand = kept
-	self.selected = {}
-	self.target = nil
-
-	if outcome.conquered then
-		Gamestate.switch(require("src.states.result"), true)
-	elseif #self.hand == 0 then
-		Gamestate.switch(require("src.states.result"), false)
-	else
-		self.message = "Lane committed. Keep sieging the Core."
-	end
-end
-
 function M:enter()
-	local deck = Deck.build(Vocab.vocabulary())
-	Deck.shuffle(deck, 1337)
-	Deck.draw(deck)
-	self.deck = deck
-	self.hand = deck.hand
-	self.town = Towns.frontier()
+	local deck = Deck.shuffle(Deck.build(StarterDeck.build()), 1337)
+	self.siege = Siege.new(deck, Towns.frontier(), { hp = 30, seed = 7 })
 	self.selected = {}
 	self.target = nil
-	self.message = "Click cards to select, click a structure to target, Enter to commit."
+	self.debug = false
+	self.message = "Sculpt: exchange (E) cards, Enter ends a turn. Town fights back each turn."
 end
 
 function M:update(dt) end
 
-function M:draw()
-	love.graphics.clear(0.08, 0.07, 0.1)
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.print("Siege: " .. self.town.name, 24, 24)
+local function drawHud(self)
+	local s = self.siege
+	Theme.set("text")
+	love.graphics.print("Siege: " .. s.town.name, 24, 16)
+	love.graphics.print(
+		string.format("Sculpt turns: %d    Exchanges left: %d    Gold: %d", s.sculptTurnsLeft, s.exchangesLeft, s.gold),
+		24,
+		38
+	)
+	if s.lockedSuit then
+		Theme.set("danger")
+		love.graphics.print("Locked suit: " .. s.lockedSuit, 480, 38)
+	end
 
-	for i, s in ipairs(self.town.structures) do
-		local x, y, w, h = structRect(i)
-		if s.destroyed then
-			love.graphics.setColor(0.18, 0.18, 0.22)
-		elseif self.target == i then
-			love.graphics.setColor(0.5, 0.42, 0.16)
-		else
-			love.graphics.setColor(0.16, 0.16, 0.24)
-		end
-		love.graphics.rectangle("fill", x, y, w, h)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.rectangle("line", x, y, w, h)
-		local label = string.format(
-			"%s   DEF %d%s%s",
-			s.name,
-			s.def,
-			s.core and "   [CORE]" or "",
-			s.destroyed and "   (destroyed)" or ""
+	-- expedition HP bar (top-right)
+	local x, y, w, h = 600, 14, 320, 18
+	local frac = math.max(0, s.expeditionHP) / s.maxHP
+	Theme.set("panel")
+	love.graphics.rectangle("fill", x, y, w, h, 4, 4)
+	Theme.set(frac > 0.5 and "success" or (frac > 0.25 and "accent" or "danger"))
+	love.graphics.rectangle("fill", x, y, w * frac, h, 4, 4)
+	Theme.set("muted")
+	love.graphics.rectangle("line", x, y, w, h, 4, 4)
+	Theme.set("text")
+	love.graphics.print(string.format("HP %d/%d", s.expeditionHP, s.maxHP), x + 8, y + 1)
+end
+
+local function drawBreakdown(self)
+	local s = self.siege
+	if not self.target then
+		return
+	end
+	local structure = s.town.structures[self.target]
+	local p = Siege.preview(s, self.target)
+	Theme.set("muted")
+	love.graphics.print("Targeting: " .. structure.name, 24, 180)
+	Theme.set("text")
+	if p then
+		love.graphics.print(
+			string.format(
+				"%s  %d x%d x%.1f = %d   vs DEF %d   -> %s",
+				p.combo.kind,
+				p.combo.rankSum,
+				p.combo.mult,
+				p.type,
+				p.attack,
+				p.def,
+				p.destroyed and "DESTROYED" or "holds"
+			),
+			24,
+			202
 		)
-		love.graphics.print(label, x + 10, y + 18)
+	else
+		love.graphics.print("No cards in this lane yet (select cards, then click this structure).", 24, 202)
 	end
+end
 
-	for i, card in ipairs(self.hand) do
+function M:draw()
+	Theme.set("bg")
+	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
+	drawHud(self)
+	for i, s in ipairs(self.siege.town.structures) do
+		local x, y, w, h = structRect(i)
+		TownView.draw(s, x, y, w, h, { targeted = self.target == i })
+	end
+	drawBreakdown(self)
+
+	for i, card in ipairs(self.siege.hand) do
 		local x, y, w, h = cardRect(i)
-		if self.selected[i] then
-			love.graphics.setColor(0.2, 0.4, 0.5)
-		else
-			love.graphics.setColor(0.15, 0.15, 0.2)
-		end
-		love.graphics.rectangle("fill", x, y, w, h)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.rectangle("line", x, y, w, h)
-		love.graphics.print(card.rank, x + 10, y + 10)
-		love.graphics.print(card.suit, x + 10, y + h - 28)
+		CardUI.draw(card, x, y, w, h, {
+			selected = self.selected[card],
+			assignedTo = self.siege.assigned[card],
+		})
 	end
 
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.print(self.message, 24, 330)
-	love.graphics.print("Enter: commit    R: restart    Esc: menu", 24, 520)
+	Theme.set("text")
+	love.graphics.print(self.message, 24, 336)
+	Theme.set("muted")
+	love.graphics.print(
+		"Click: select card / click structure to assign    E: exchange    Enter: end turn / COMMIT    R: restart    Esc: menu",
+		24,
+		524
+	)
+
+	if self.debug then
+		Theme.set("accent")
+		love.graphics.print(
+			string.format("[debug] seed=%d lanes=%d hand=%d", self.siege.seed, (function()
+				local n = 0
+				for _ in pairs(self.siege.lanes) do
+					n = n + 1
+				end
+				return n
+			end)(), #self.siege.hand),
+			24,
+			500
+		)
+	end
+end
+
+local function endTurnOrCommit(self)
+	local s = self.siege
+	if s.sculptTurnsLeft > 0 then
+		Siege.endSculpt(s)
+		self.message = s.sculptTurnsLeft > 0 and "Town fought back. One sculpt turn left."
+			or "Sculpt done. Assign lanes (click cards, then a structure), Enter to COMMIT."
+		return
+	end
+	local result = Siege.commit(s)
+	Gamestate.switch(require("src.states.result"), {
+		conquered = result.conquered,
+		outcome = result.outcome,
+		loot = result.loot,
+		hp = s.expeditionHP,
+		maxHP = s.maxHP,
+	})
 end
 
 function M:mousepressed(mx, my, button)
 	if button ~= 1 then
 		return
 	end
-	for i = 1, #self.hand do
+	for i, card in ipairs(self.siege.hand) do
 		local x, y, w, h = cardRect(i)
 		if hit(mx, my, x, y, w, h) then
-			self.selected[i] = not self.selected[i] or nil
+			self.selected[card] = not self.selected[card] or nil
 			return
 		end
 	end
-	for i, s in ipairs(self.town.structures) do
+	for i, s in ipairs(self.siege.town.structures) do
 		local x, y, w, h = structRect(i)
-		if not s.destroyed and hit(mx, my, x, y, w, h) then
+		if hit(mx, my, x, y, w, h) then
 			self.target = i
+			local picks = selectedList(self)
+			local assigned = 0
+			for _, card in ipairs(picks) do
+				if Siege.assign(self.siege, card, i) then
+					assigned = assigned + 1
+				end
+				self.selected[card] = nil
+			end
+			if assigned > 0 then
+				self.message = string.format("Assigned %d card(s) to %s.", assigned, s.name)
+			end
 			return
 		end
 	end
@@ -148,7 +196,19 @@ end
 
 function M:keypressed(key)
 	if key == "return" then
-		commit(self)
+		endTurnOrCommit(self)
+	elseif key == "e" then
+		local picks = selectedList(self)
+		if Siege.exchange(self.siege, picks) then
+			for _, card in ipairs(picks) do
+				self.selected[card] = nil
+			end
+			self.message = "Exchanged. Exchanges left: " .. self.siege.exchangesLeft
+		else
+			self.message = "Can't exchange that many (budget: " .. self.siege.exchangesLeft .. ")."
+		end
+	elseif key == "tab" then
+		self.debug = not self.debug
 	elseif key == "r" then
 		Gamestate.switch(require("src.states.combat"))
 	elseif key == "escape" then
