@@ -49,7 +49,14 @@ local function drawHud(self)
 	Theme.set("text")
 	love.graphics.print("Siege: " .. s.town.name, 24, 16)
 	love.graphics.print(
-		string.format("Sculpt turns: %d    Exchanges left: %d    Gold: %d", s.sculptTurnsLeft, s.exchangesLeft, s.gold),
+		string.format(
+			"Sculpt turns: %d    Exchanges: %d    Gold: %d    Dice: %d    Coins: %d",
+			s.sculptTurnsLeft,
+			s.exchangesLeft,
+			s.gold,
+			s.tokens.die,
+			s.tokens.coin
+		),
 		24,
 		38
 	)
@@ -84,18 +91,25 @@ local function drawBreakdown(self)
 	if p then
 		love.graphics.print(
 			string.format(
-				"%s  %d x%d x%.1f = %d   vs DEF %d   -> %s",
+				"%s  %d x%d x%.1f = atk %d   - armor %d -> dmg %d   vs HP %d   -> %s",
 				p.combo.kind,
 				p.combo.rankSum,
 				p.combo.mult,
 				p.type,
 				p.attack,
-				p.def,
-				p.destroyed and "DESTROYED" or "holds"
+				p.armor,
+				p.damage,
+				p.hp,
+				p.shielded and "SHIELDED" or (p.destroyed and "DESTROYED" or "holds")
 			),
 			24,
 			202
 		)
+		local bonus = s.bonuses[self.target]
+		if bonus then
+			Theme.set("accent")
+			love.graphics.print(string.format("gamble on this lane: +%d add, x%.2f", bonus.add, bonus.mult), 24, 224)
+		end
 	else
 		love.graphics.print("No cards in this lane yet (select cards, then click this structure).", 24, 202)
 	end
@@ -108,15 +122,17 @@ function M:draw()
 	drawHud(self)
 	for i, s in ipairs(self.siege.town.structures) do
 		local x, y, w, h = structRect(i)
-		TownView.draw(s, x, y, w, h, { targeted = self.target == i })
+		local locked = not s.destroyed and not Siege.reachable(self.siege, i)
+		TownView.draw(s, x, y, w, h, { targeted = self.target == i, locked = locked })
 	end
 	drawBreakdown(self)
 
 	for i, card in ipairs(self.siege.hand) do
 		local x, y, w, h = cardRect(i)
+		local ids = self.siege.assigned[card]
 		CardUI.draw(card, x, y, w, h, {
 			selected = self.selected[card],
-			assignedTo = self.siege.assigned[card],
+			assignedTo = ids and table.concat(ids, ","),
 		})
 	end
 
@@ -124,7 +140,7 @@ function M:draw()
 	love.graphics.print(self.message, 24, 336)
 	Theme.set("muted")
 	love.graphics.print(
-		"Click: select card / click structure to assign    E: exchange    Enter: end turn / COMMIT    R: restart    Esc: menu",
+		"Click: select / assign    E: exchange    D: die    C: coin    Enter: end turn / COMMIT    R: restart    Esc: menu",
 		24,
 		524
 	)
@@ -188,6 +204,8 @@ function M:mousepressed(mx, my, button)
 			end
 			if assigned > 0 then
 				self.message = string.format("Assigned %d card(s) to %s.", assigned, s.name)
+			elseif #picks > 0 then
+				self.message = "Can't assign there (locked suit, or back-row needs a Caster / cleared front)."
 			end
 			return
 		end
@@ -206,6 +224,24 @@ function M:keypressed(key)
 			self.message = "Exchanged. Exchanges left: " .. self.siege.exchangesLeft
 		else
 			self.message = "Can't exchange that many (budget: " .. self.siege.exchangesLeft .. ")."
+		end
+	elseif key == "d" then
+		if not self.target then
+			self.message = "Pick a target lane first, then press D to spend a die."
+		else
+			local roll = Siege.applyDie(self.siege, self.target)
+			self.message = roll and ("Die on this lane: +" .. roll) or "No die to spend (or empty lane)."
+		end
+	elseif key == "c" then
+		if not self.target then
+			self.message = "Pick a target lane first, then press C to flip a coin."
+		else
+			local heads = Siege.applyCoin(self.siege, self.target)
+			if heads == nil then
+				self.message = "No coin to spend (or empty lane)."
+			else
+				self.message = heads and "Coin: HEADS - lane x1.5!" or "Coin: tails - lane x0.5."
+			end
 		end
 	elseif key == "tab" then
 		self.debug = not self.debug

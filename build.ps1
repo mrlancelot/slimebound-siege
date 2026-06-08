@@ -60,16 +60,17 @@ function Find-LuaRunner {
 }
 
 function Invoke-Tests {
-	$spec = Join-Path $Root "tests\resolver_spec.lua"
 	$runner = Find-LuaRunner
 	if (-not $runner) {
-		Write-Warning "No lua/luajit on PATH; resolver spec not run (run it with luajit tests/resolver_spec.lua)."
+		Write-Warning "No lua/luajit on PATH; specs not run (run them with luajit tests/<name>_spec.lua)."
 		return
 	}
-	Push-Location $Root
-	try { & $runner $spec } finally { Pop-Location }
-	if ($LASTEXITCODE -ne 0) { throw "Resolver spec failed." }
-	Write-Host "Resolver spec passed." -ForegroundColor Green
+	foreach ($spec in @("resolver_spec", "abilities_spec")) {
+		Push-Location $Root
+		try { & $runner (Join-Path $Root "tests\$spec.lua") } finally { Pop-Location }
+		if ($LASTEXITCODE -ne 0) { throw "$spec failed." }
+		Write-Host "$spec passed." -ForegroundColor Green
+	}
 }
 
 function Invoke-Run {

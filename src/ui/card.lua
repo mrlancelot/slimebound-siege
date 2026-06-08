@@ -16,6 +16,12 @@ function M.draw(card, x, y, w, h, opts)
 	Theme.set("text")
 	love.graphics.print(card.rank, x + 8, y + 6)
 
+	-- monster type (its ability identity), wrapped to the card width
+	if card.monsterType then
+		Theme.set("muted")
+		love.graphics.printf(card.monsterType, x + 6, y + 34, w - 12, "left")
+	end
+
 	Theme.set(card.suit)
 	love.graphics.print(SUIT_GLYPH[card.suit] or "?", x + 8, y + h - 24)
 

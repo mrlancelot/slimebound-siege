@@ -272,6 +272,57 @@ turn the town may:
 Boss keeps carry the toughest, stacked rules. This is the home for the anti-monster
 defenses (Holy Ward, Arrow Tower, Frost choke).
 
+### Structure HP & Armor
+
+To give the siege more texture than a single pass/fail threshold, each structure has two
+defensive numbers:
+
+- **HP** - the damage pool you must deplete to destroy it (the old "DEF" values: Wall ~3,
+  Gate ~6, Tower ~9, Core ~14 - tuning).
+- **Armor** - a **flat reduction** subtracted from each lane's attack before it bites:
+
+```text
+damage    = max(0, lane attack - armor)
+destroyed = damage >= remaining HP
+```
+
+Material armor defaults (tuning): Wood 1, Iron 2, Stone 3, Ice 1, Holy 2. Armor is what makes
+the **ignore-armor** abilities (Orc Grunt, Hex Slime) matter, and the HP pool is what lets
+**overkill carry** (Dragonkin) and future multi-hit chaining have something to spill into.
+
+### Structure Keywords
+
+Optional per-structure rules (data on the structure), the home for deterministic difficulty:
+
+- **Shield** - immune to damage until the structure **in front of it** is destroyed (pairs
+  with Reach, below).
+- **Regen N** - regains N HP at the start of each sculpt turn (stalling lets it heal).
+- **Thorns N** - any lane that hits it costs the slime **N expedition HP**.
+- **Ward <element>** - takes **x0.5** from the warded element (Poison still ignores resist).
+
+### Reach & Siege Layers
+
+Structures are ordered **front -> back**; the **Town Core is back-most**. A lane may target a
+back structure only if **every structure in front of it is destroyed**, *or* the lane contains
+a **Caster (Diamonds)** card (casters have **reach**). This restores siege-layer target
+priority and gives Diamonds a clear role. (Some abilities may also grant reach.)
+
+### Gamble Tokens (Coin & Die)
+
+Opt-in, **limited consumables** (found in loot, bought in the shop) the player may spend on a
+single lane before committing - the **only** randomness in combat:
+
+- **Die** - adds **+1..6** to that lane's attack (additive; never wastes a built combo - best
+  for squeaking a marginal lane past armor/HP).
+- **Coin** - a **flip** on that lane: **heads x1.5, tails x0.5** (a real gamble both ways).
+
+```text
+final lane attack = (attack + dieRoll) x coinMult     -- die first, then coin
+```
+
+One token of each type per lane. Rolls use the seeded RNG so a siege stays reproducible/testable;
+the resolver itself stays pure (the roll is computed by the siege and passed in as a modifier).
+
 ## Merge System
 
 Merging should feel like discovering monster recipes, not only upgrading numbers.

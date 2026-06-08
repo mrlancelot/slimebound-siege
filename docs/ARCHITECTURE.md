@@ -159,7 +159,11 @@ Card        suit, rank, element, id
 ### Structure
 
 ```text
-Structure   name, def, material, element, rule, destroyed
+Structure   name, hp, armor, material, element, keywords, destroyed
+            hp        damage pool to deplete (was "def")
+            armor     flat reduction: damage = max(0, attack - armor)
+            keywords  { shield, regen=N, thorns=N, ward="Fire" } (see M2.7)
+            (front -> back order in the town gives Reach/siege layers)
 ```
 
 ### Town
@@ -183,7 +187,8 @@ Campaign    core, coreLevel, territory[], essence, unlocks[], storyFlags[]
 ### Expedition state (transient - lives only for one run, not saved long-term)
 
 ```text
-Expedition  deck, horde, gold, region, node, seed, runFlags
+Expedition  deck, horde, gold, region, node, seed, runFlags, tokens
+            tokens    { coin = N, die = N } gamble consumables (see M2.7)
 ```
 
 Add fields only when a ticket needs them.
@@ -227,10 +232,19 @@ Elements are **3 damage + 2 utility** (all pure in the resolver):
 Per-monster **abilities** (see MONSTERS.md) are applied as lane modifiers around this core
 (extra attack, mult, DEF reduction, multi-lane, etc.).
 
+**Combat-depth additions (M2.7), all kept pure:** the lane uses `damage = max(0, attack -
+armor)` and `destroyed = damage >= hp` (HP/armor replace the bare DEF threshold); structure
+**keywords** (Shield/Regen/Thorns/Ward) and **Reach** layering are read from the structure/town.
+**Gamble tokens** stay out of the resolver: the **die (+1..6)** and **coin (x1.5 / x0.5)** are
+rolled by `siege.lua` via `rng.lua` and passed into `resolveLane` as per-lane `bonusAdd` /
+`bonusMult` modifiers, so the resolver remains deterministic and unit-testable.
+
 ## Targeting Rules
 
-- Structures are **independent targets** - any lane may target any structure.
-- The **Core** is just the highest-DEF target; destroying it conquers the town.
+- Structures are **independent targets**, but ordered **front -> back** for **Reach** (M2.7):
+  a back structure can be targeted only if the structures in front are destroyed, or the lane
+  has a **Caster (Diamonds)** for reach.
+- The **Core** is the back-most, highest-HP target; destroying it conquers the town.
 - Non-core structures are optional: destroying them grants bonus loot, not access.
 - A monster may only occupy one lane, except abilities that explicitly allow more (Imp).
 

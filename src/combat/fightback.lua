@@ -13,11 +13,11 @@ local function firstOpen(siege)
 end
 
 M.handlers = {
-	-- Reinforce a structure's DEF before the commit.
+	-- Reinforce a structure's HP before the commit.
 	reinforce = function(siege, rule)
 		local _, s = firstOpen(siege)
 		s = s or siege.town.structures[#siege.town.structures]
-		s.def = s.def + (rule.amount or 2)
+		s.hp = s.hp + (rule.amount or 2)
 	end,
 
 	-- Lock a suit: cards of that suit can't be committed; drop any already assigned.

@@ -147,23 +147,73 @@ damage or retreat.
 
 ---
 
+## M2.7 - Combat Depth (HP/armor, keywords, reach, gamble)
+
+**Goal:** add deterministic depth + one opt-in gamble so the siege isn't a single pass/fail
+threshold. **Done when:** structures use HP + armor, keywords (Shield/Regen/Thorns/Ward) and
+Reach layering resolve, and a lane can spend a die (+1-6) or coin (x1.5 / x0.5). See the new
+GAME_DESIGN "Siege Combat" subsections. Lands **before** M3 (several abilities build on it).
+
+> **Status: ✅ Complete.**
+
+### 2.7.1 Structure HP + armor
+- [x] `2.7.1.1` Add `hp` + `armor` to `src/data/structures.lua` (hp = old def 3/6/9/14) + a
+  material armor table (Wood 1, Iron 2, Stone 3, Ice 1, Holy 2 - tuning).
+- [x] `2.7.1.2` Resolver: `damage = max(0, attack - armor)`, `destroyed = damage >= hp`; add an
+  `ignoreArmor` hook (used by Orc Grunt / Hex Slime in M3).
+- [x] `2.7.1.3` `src/ui/town_view.lua`: show HP + armor on the structure card.
+- [x] `2.7.1.4` Resolver tests: armor reduces damage; ignore-armor restores it; overkill vs hp.
+
+### 2.7.2 Structure keywords
+- [x] `2.7.2.1` `keywords` field on structures + a `kind -> handler` table (reuse the data-driven pattern).
+- [x] `2.7.2.2` Shield: immune until the structure in front is destroyed (with Reach).
+- [x] `2.7.2.3` Regen N: heal N hp at the start of each sculpt turn (in `siege.endSculpt`).
+- [x] `2.7.2.4` Thorns N: a lane that hits it costs the slime N expedition HP on commit.
+- [x] `2.7.2.5` Ward <element>: that element deals x0.5 to the structure (resolver).
+- [x] `2.7.2.6` UI: keyword badges on the structure card.
+- [x] `2.7.2.7` Tests: one assert per keyword.
+
+### 2.7.3 Reach / siege layers
+- [x] `2.7.3.1` Front->back order + back-row flag on `towns.lua` structures.
+- [x] `2.7.3.2` Reach rule in `siege.assign`: back structure allowed only if front destroyed or
+  the lane has a Caster (Diamonds).
+- [x] `2.7.3.3` UI: locked/unreachable target indicator.
+- [x] `2.7.3.4` Tests: reach blocks/allows assignment correctly.
+
+### 2.7.4 Gamble tokens (coin + die)
+- [x] `2.7.4.1` `tokens = { coin = N, die = N }` on the siege/expedition + starting amounts (tuning).
+- [x] `2.7.4.2` `siege.applyDie(laneId)` - +1..6 to the lane via the seeded `rng.lua`; consume a die.
+- [x] `2.7.4.3` `siege.applyCoin(laneId)` - flip x1.5 / x0.5 on the lane; consume a coin.
+- [x] `2.7.4.4` Resolver: accept per-lane `bonusAdd` / `bonusMult` modifiers; order `(attack+add)*mult`.
+- [x] `2.7.4.5` Input + UI: spend a token on the targeted lane; show it in the lane breakdown.
+- [x] `2.7.4.6` Loot/shop grant tokens (hook into M2.2.6 loot and M4.3 shop).
+- [x] `2.7.4.7` Tests: die/coin modifiers apply in the right order; tokens decrement.
+
+---
+
 ## M3 - Monster Abilities (data-driven)
 
 **Goal:** every monster type in [MONSTERS.md](MONSTERS.md) has its commit-time ability.
 **Done when:** abilities resolve as lane modifiers and the Imp can split into two lanes.
 
+> **Builds on M2.7** - Orc Grunt / Hex Slime use the `ignoreArmor` hook, Casters use Reach,
+> Dragonkin carries overkill onto a structure's HP, Frost Mage / Slime Spitter lower HP.
+
+> **Status: ✅ Complete** — all family + merged abilities and the Imp split resolve; abilities
+> auto-attach to cards by suit+rank band (`monsters.lua`) and dispatch via `effects.lua`.
+
 ### 3.1 Effect framework
-- `3.1.1` Define an `effects` table: `kind -> handler(ctx)` applied during `resolveLane` / `resolveCommit`.
-- `3.1.2` Attach an `ability` (effect-kind + params) to each monster type in `monsters.lua`.
-- `3.1.3` Handler hooks: pre-lane (DEF/rank tweaks), lane-mult, post-destroy (heal/loot), commit-wide.
+- [x] `3.1.1` Define an `effects` table: `kind -> handler(ctx)` applied during `resolveLane` / `resolveCommit`.
+- [x] `3.1.2` Attach an `ability` (effect-kind + params) to each monster type in `monsters.lua`.
+- [x] `3.1.3` Handler hooks: pre-lane (DEF/rank tweaks), lane-mult, post-destroy (heal/loot), commit-wide.
 
 ### 3.2 Family abilities (one tiny ticket each, per MONSTERS.md)
-- `3.2.1`-`3.2.6` Clubs: Runt, Sneak, Raider, Pack-leader, Goblin Boss, Goblin Khan.
-- `3.2.7`-`3.2.12` Spades: Orcling, Orc Grunt, Ogre, Troll, Berserker, War Brute.
-- `3.2.13`-`3.2.18` Hearts: Slime, Slime Spitter, Hex Slime, Greater Slime, Slime Familiar, Slime Core (wild).
-- `3.2.19`-`3.2.24` Diamonds: Imp (multi-lane), Acolyte, Shaman, Dragonkin, Frost Mage, Wyvern.
-- `3.2.25` Merged-monster abilities (Hobgoblin, Stone Ogre, Greater Slime, Hexling, Ember Brute, Hex Slime).
-- `3.2.26` Tests: one assert per ability kind.
+- [x] `3.2.1`-`3.2.6` Clubs: Runt, Sneak, Raider, Pack-leader, Goblin Boss, Goblin Khan.
+- [x] `3.2.7`-`3.2.12` Spades: Orcling, Orc Grunt, Ogre, Troll, Berserker, War Brute.
+- [x] `3.2.13`-`3.2.18` Hearts: Slime, Slime Spitter, Hex Slime, Greater Slime, Slime Familiar, Slime Core (wild).
+- [x] `3.2.19`-`3.2.24` Diamonds: Imp (multi-lane), Acolyte, Shaman, Dragonkin, Frost Mage, Wyvern.
+- [x] `3.2.25` Merged-monster abilities (Hobgoblin, Stone Ogre, Greater Slime, Hexling, Ember Brute, Hex Slime).
+- [x] `3.2.26` Tests: one assert per ability kind.
 
 ---
 
