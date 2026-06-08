@@ -14,8 +14,11 @@ restating them.
   only for a genuinely new effect *kind*). This is what keeps later content tiny.
 - **DRY** - point at the design docs for content; don't restate it here.
 - IDs are `milestone.epic.ticket` (e.g. `2.3.1` = milestone 2, epic 3, ticket 1).
-- Near milestones are fully ticketed; far milestones (M5-M7) are compact epics with a
-  **Done when**, detailed only when they come up.
+- **Presentation over logic** - animations, color, sprites, and sound are driven by *events*
+  from the pure combat logic; they never block or change resolution, and can be disabled
+  (reduce-motion) without touching rules.
+- Near milestones are fully ticketed; the campaign/story epics (M5-M6) stay compact until
+  they come up, while presentation (M7-M8) is ticketed in fine detail.
 
 ---
 
@@ -123,6 +126,16 @@ damage or retreat.
   (4/6/7/9), 4 Slimes (2/4/6/8), 3 Casters (3/5/7), 1 Slime Core (Ace); elements spread
   across Fire/Acid/Physical/Frost/Poison. (Tuning starting point.)
 
+### 2.6 Visual theme (minimal, so placeholders read)
+- `2.6.1` `src/ui/theme.lua` - one palette table (UI chrome + suits + elements + materials).
+- `2.6.2` UI chrome: bg `#15151e`, panel `#2a2a3a`, text `#e8e8ec`, muted `#9a9aa8`, accent `#f0c040`, success `#6aa84f`, danger `#e2554a`.
+- `2.6.3` Suit colors: Clubs `#6aa84f`, Spades `#7f8a9b`, Hearts `#d6608f`, Diamonds `#b06fd6`.
+- `2.6.4` Element colors: Fire `#e2554a`, Acid `#b6d94c`, Physical `#d8d2c2`, Frost `#5fc7e8`, Poison `#7d4b9c`.
+- `2.6.5` Material colors: Wood `#8a5a2b`, Iron `#6d7079`, Stone `#9a9488`, Ice `#b8e0ef`, Holy `#f2e6b3`.
+- `2.6.6` `theme.hex(name)` helper -> `{r,g,b}` (0-1) for `love.graphics.setColor`.
+- `2.6.7` Load a pixel/monospace `.ttf` from `assets/`; set as the default font.
+- `2.6.8` Recolor the card faces, structure cards, and HP bar from `theme` (retire bare rects).
+
 ---
 
 ## M3 - Monster Abilities (data-driven)
@@ -208,17 +221,79 @@ recruit, companions can fall, and endings branch.
 
 ---
 
-## M7 - Content & Polish
+## M7 - Presentation (sprites, animation, audio)
 
-**Goal:** ship-quality breadth. **Done when:** all kingdoms are populated, balanced, and the
-game looks/sounds/packages well.
+**Goal:** the game looks and feels alive; logic stays pure (visuals are event-driven).
+**Done when:** cards deal/play with tweens, structures react and crumble, elements read at a
+glance, and audio backs every key action. All effects respect a reduce-motion flag (M8.3).
 
-- `7.1` Full town/kingdom roster + per-kingdom DEF scaling (Frontier x1 -> Crown x3) and fight-back stacks.
-- `7.2` Full element/ability/economy balance pass (data-driven tuning).
-- `7.3` Card art + `anim8` animation (card play, merges, kingdom backdrops).
-- `7.4` Audio: sfx (commit, structure break, fight-back), per-kingdom music, narrator stings.
-- `7.5` Accessibility pass (colorblind-safe suits/elements, text scale, input remap).
-- `7.6` Packaging/release pipeline (`make package` / `build.ps1 package`) for Windows + macOS.
+### 7.1 Sprites & art pipeline
+- `7.1.1` `src/ui/sprites.lua` loader (`love.graphics.newImage`, nearest filter, cached by key).
+- `7.1.2` Card-frame sprites: base, selected, and champion frame (J/Q/K/Ace).
+- `7.1.3` Suit/family glyph sprites (Clubs/Spades/Hearts/Diamonds).
+- `7.1.4` Element pip icons (Fire/Acid/Physical/Frost/Poison), tinted from `theme`.
+- `7.1.5` Structure sprites per material (Wood/Iron/Stone/Ice/Holy) + cracked + destroyed frame.
+- `7.1.6` Slime avatar sprite + 4 core tints (Commander/Absorber/Alchemist/Warden).
+- `7.1.7` Monster art per type (start with colored silhouettes; swap to art later).
+- `7.1.8` Kingdom backdrops (5) for combat + overworld.
+- `7.1.9` Vendor `anim8`; build grids for multi-frame sprites (slime idle, flame flicker).
+
+### 7.2 Card animations (flux + timer)
+- `7.2.1` `src/ui/anim.lua` - wrap `flux` + a small active-tween registry updated each frame.
+- `7.2.2` Deal: tween each card from the deck position to its hand slot, staggered.
+- `7.2.3` Hover lift; un-hover settle.
+- `7.2.4` Select raise; deselect drop.
+- `7.2.5` Assign-to-lane: tween the card to the lane slot under its structure.
+- `7.2.6` Exchange: toss discarded cards off-screen; slide replacements in.
+- `7.2.7` Reshuffle: sweep the discard pile back into the draw pile.
+
+### 7.3 Commit & combat juice
+- `7.3.1` Commit sequence: resolve lanes one-by-one with a short `timer` delay.
+- `7.3.2` Structure hit: shake (flux on a draw offset) + element-tinted flash.
+- `7.3.3` Destroy: crumble/fade + a `love.graphics.newParticleSystem` burst.
+- `7.3.4` Floating attack/damage numbers (rise + fade out).
+- `7.3.5` HP-bar lerp to the new value; low-HP pulse.
+- `7.3.6` Fight-back telegraph: the affected structure/card pulses before each sculpt hit.
+- `7.3.7` Per-element cue: Fire burn, Acid sizzle, Frost freeze-tint, Poison drip, Physical impact.
+- `7.3.8` Screen shake on Core destruction / big overkill (gated by reduce-motion).
+- `7.3.9` Combo glow: the hand highlights when the current selection forms a named combo.
+
+### 7.4 Merge & meta animations
+- `7.4.1` Merge fusion: two cards spiral together into the result card.
+- `7.4.2` Card-gain flourish (recruit/reward card flies into the deck pile).
+- `7.4.3` Slime-core selection flourish + evolution level-up effect.
+
+### 7.5 Transitions & overlays
+- `7.5.1` State transition fades/slides (Menu / Overworld / Expedition / Combat / Result).
+- `7.5.2` Dialogue overlay slide-in/out over the current state (hump gamestate stack).
+- `7.5.3` Scout reveal: structures fade/flip in when a town opens.
+
+### 7.6 Audio
+- `7.6.1` `src/core/audio.lua` - source loading/pooling + master/sfx/music volumes.
+- `7.6.2` SFX: draw, select, deal, exchange, commit, lane resolve.
+- `7.6.3` SFX: structure crack, structure destroy, fight-back, low-HP warning.
+- `7.6.4` SFX: victory, defeat, button click, per-voice dialogue blip.
+- `7.6.5` Music: menu, combat, victory + per-kingdom tracks (5).
+- `7.6.6` Narrator stings for broken-UI glitch / achievement beats.
+- `7.6.7` Duck music under dialogue and key sfx.
+
+### 7.7 Text & narrator styling
+- `7.7.1` Voice text styles (system / slime / character) pulled from `theme`.
+- `7.7.2` Broken-UI glitch text effect (jitter / strikethrough / typos) for narrator beats.
+- `7.7.3` Patch-note / achievement toast styling.
+
+---
+
+## M8 - Polish & Release
+
+**Goal:** balanced, accessible, shippable. **Done when:** a full campaign is winnable and
+fair, accessible, and packaged for both OSes.
+
+- `8.1` Balance pass: per-kingdom DEF scaling (Frontier x1 -> Crown x3), fight-back stacks, element/ability/economy tuning (data only).
+- `8.2` Accessibility: colorblind-safe suit/element **shapes** (not color alone), text scale, input remap.
+- `8.3` Reduce-motion toggle that gates the M7.3/7.4 shake + heavy tweens.
+- `8.4` Settings screen (volumes, accessibility) persisted via save.
+- `8.5` Packaging/release (`make package` / `build.ps1 package`) for Windows + macOS.
 
 ---
 
@@ -230,4 +305,6 @@ game looks/sounds/packages well.
 - **Run loop**: M4 - nodes, cores, shop, merge, companions, rewards, Rest/Training/Alchemy.
 - **Campaign/meta/save**: M5.
 - **Story** (narrator, acts, companions, defectors, endings, dialogue, Ink): M6.
-- **Art/audio/balance/accessibility/packaging**: M7.
+- **Theme/colors**: M2.6 (early) - palette, fonts, recolored placeholders.
+- **Presentation** (sprites, card + combat animation, juice, transitions, audio, narrator styling): M7.
+- **Polish/release** (balance, accessibility, reduce-motion, settings, packaging): M8.
