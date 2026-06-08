@@ -246,6 +246,10 @@ glance, and audio backs every key action. All effects respect a reduce-motion fl
 - `7.2.5` Assign-to-lane: tween the card to the lane slot under its structure.
 - `7.2.6` Exchange: toss discarded cards off-screen; slide replacements in.
 - `7.2.7` Reshuffle: sweep the discard pile back into the draw pile.
+- `7.2.8` **Drag-and-drop assign**: pick up a card and drop it onto a structure to assign its
+  lane (drop target highlights on hover; snap-back if dropped on empty space). Replaces the
+  click-select -> click-structure flow from M2.4; reuses the 7.2.5 lane tween. Input/presentation
+  only - does not change resolution.
 
 ### 7.3 Commit & combat juice
 - `7.3.1` Commit sequence: resolve lanes one-by-one with a short `timer` delay.
